@@ -1,2 +1,3 @@
 Vendor/** -text -whitespace
 ThirdParty/** -text -whitespace
+LICENSE -text -whitespace

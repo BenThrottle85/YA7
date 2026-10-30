@@ -4,3 +4,23 @@
 xcuserdata/
 *.xcuserstate
 DerivedData/
+
+# Local builds, release artifacts and credentials
+.ci-work/
+build/
+dist/
+work/
+*.xcresult/
+*.dSYM/
+/*.app/
+/*.dmg
+/*.zip
+.env
+.env.*
+!.env.example
+*.p12
+*.pfx
+*.p8
+*.key
+*.cer
+*.mobileprovision

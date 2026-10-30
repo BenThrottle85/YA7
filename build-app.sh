@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 project_dir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
-build_root="$project_dir/../../work/XcodeBuild"
+build_root="${YA7_BUILD_ROOT:-$project_dir/../../work/XcodeBuild}"
 output_path="${1:-$project_dir/../YA7.app}"
 stage_path="$build_root/Export/YA7.app"
 signing_identity="${YA7_SIGNING_IDENTITY:-${ARCHIV_SIGNING_IDENTITY:--}}"

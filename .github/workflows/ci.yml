@@ -1,0 +1,44 @@
+name: macOS build and tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  macos:
+    # Standard runners are free for public repositories; never run here if made private.
+    if: github.event.repository.private == false
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-26, macos-26-intel]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Show toolchain
+        run: xcodebuild -version
+      - name: Test (local signing, no Apple credentials)
+        run: |
+          xcodebuild -project YA7.xcodeproj -scheme YA7 -configuration Debug \
+            -destination 'platform=macOS' -parallel-testing-enabled NO \
+            -derivedDataPath "$RUNNER_TEMP/YA7-tests" \
+            -resultBundlePath "$RUNNER_TEMP/YA7-tests.xcresult" \
+            CODE_SIGN_IDENTITY=- OTHER_CODE_SIGN_FLAGS=--timestamp=none test
+      - name: Build Universal app
+        env:
+          YA7_BUILD_ROOT: ${{ runner.temp }}/YA7-release
+        run: sh build-app.sh "$RUNNER_TEMP/YA7-export/YA7.app"
+      - name: Check local release structure
+        run: python3 Scripts/verify-release.py "$RUNNER_TEMP/YA7-export/YA7.app" --allow-local

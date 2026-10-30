@@ -1,51 +1,65 @@
-# YA7 - Yet Another 7-Zip GUI for macOS
+<p align="center"><img src="docs/images/icon.png" width="128" alt="YA7 icon"></p>
 
-Version **0.2.7 (Build 9)**. Native macOS-App ab macOS 14, Universal-Build fuer Apple Silicon und Intel. Enthalten: offizielles 7-Zip 26.05 und drei Finder-Schnellaktionen. Kein Homebrew erforderlich.
+# YA7
 
-## Archivformate
+**Yet Another 7-Zip GUI for macOS**
 
-- Erstellen: **7z, ZIP, TAR, TAR.GZ, TAR.BZ2, TAR.XZ**.
-- Lesen/Entpacken: **7z, ZIP, RAR, TAR, GZIP, BZIP2, XZ, Zstandard, CAB, ISO, DMG**.
-- Aliase: **tgz, tbz, tbz2, txz, tzst**; TAR.GZ/TAR.BZ2/TAR.XZ/TAR.ZST werden ueber beide Schichten verarbeitet.
-- Komprimierte TAR-Archive koennen mehrere Dateien und Ordner enthalten. Die Auswahl einzelner Eintraege bezieht sich auf den inneren TAR-Inhalt.
-- Passwortschutz beim Erstellen: ZIP/7z; TAR ohne Kompressionsstufe. Unpassende Erstelloptionen werden ausgeblendet. ZIP-Passwoerter verwenden druckbare ASCII-Zeichen, 7z erlaubt Unicode.
-- ISO und DMG werden als Archive gelesen, nicht eingebunden. Nicht alle Image-Varianten/Verschluesselungen werden von 7-Zip unterstuetzt; Fehler werden angezeigt.
-- Ein gemeinsamer Swift-Formatkatalog steuert Menues, Dateierkennung und Finder-Typregeln. Der Projektgenerator leitet Typdeklarationen daraus ab.
+A native SwiftUI/AppKit archive utility with a bundled 7-Zip engine and Finder Quick Actions. macOS 14 or later; Universal builds for Apple Silicon and Intel. No Homebrew installation required to use the app.
 
-## 7-Zip-Version pruefen
+[Deutsch](docs/README.de.md) · [Releases](https://github.com/BenThrottle85/YA7/releases) · [Changelog](CHANGELOG.md) · [License](LICENSING.md)
 
-In den Einstellungen stehen die enthaltene Engine-Version, das letzte erfolgreiche Ergebnis und **Jetzt pruefen** bereit. **Woechentlich bei geoeffneter App pruefen** ist standardmaessig aktiv und abschaltbar. Start, erneute Aktivierung und Aufwachen holen eine faellige Pruefung nach; kein separater Hintergrunddienst.
+## Install
 
-Quelle: `https://api.github.com/repos/ip7z/7zip/releases/latest`. Nur Versionsmetadaten werden abgefragt; keine Archivdaten. Numerischer Versionsvergleich, 15 Sekunden Netzwerkzeitlimit, zusammengefuehrte parallele Anfragen. Nach automatischen Fehlern wird fruehestens nach 24 Stunden erneut versucht; vorhandene erfolgreiche Ergebnisse bleiben erhalten. Manuelle Fehler erscheinen in den Einstellungen. Eine neue Version wird innerhalb der App mit Link zur offiziellen Veroeffentlichung angezeigt. Keine Systemmitteilungen oder automatische Installation. Engine-Aktualisierungen werden mit einer neuen signierten YA7-Version ausgeliefert.
+Download the notarized DMG from [GitHub Releases](https://github.com/BenThrottle85/YA7/releases), open it and drag **YA7.app** to **Applications**. Quit a running copy before replacing it, then launch YA7 from Applications. macOS may ask you to confirm the first launch.
 
-Tests, Vorschau-/Demo-Renderings und Finder-Erweiterungen starten keine automatische Abfrage. Die enthaltene Versionsnummer stammt aus den mitgelieferten Hersteller-Metadaten.
+In Finder, enable **YA7: Packen**, **YA7: Entpacken** and **YA7: Prüfen** under **Quick Actions → Customize**. Choose **Fertig** after a successful action so Finder can import the result. The app currently uses a German interface.
 
-## Installation und Finder
+## Features
 
-`YA7-0.2.7-macOS-notarisiert.dmg` oeffnen und YA7.app auf Programme ziehen. Eine vorhandene laufende YA7-App vor dem Austausch regulär schliessen. Danach aus Programme starten. Keine Testkopie aus einem Build-Ordner starten.
+| Operation | Formats |
+|---|---|
+| Create | 7z, ZIP, TAR, TAR.GZ, TAR.BZ2, TAR.XZ |
+| Read/extract | 7z, ZIP, RAR, TAR, GZIP, BZIP2, XZ, Zstandard, CAB, ISO, DMG |
 
-Finder: Rechtsklick -> Schnellaktionen -> Anpassen. **YA7: Packen**, **YA7: Entpacken**, **YA7: Pruefen** aktivieren. Bei Erfolg **Fertig** waehlen, damit Finder die Ausgaben uebernimmt. Die Haupt-App hat eine eigene Zielordnerauswahl. Keine automatische Installation oder oeffentliche Veroeffentlichung durch die Buildskripte.
+- Browse archive contents and extract selected entries.
+- Process compressed TAR archives in one operation, including tgz, tbz, tbz2, txz and tzst aliases.
+- Create password-protected ZIP/7z archives. ZIP passwords use printable ASCII; 7z supports Unicode.
+- Check archive integrity where supported by the format and engine.
+- Preserve existing output files and reject unsafe extraction paths and symbolic/hard links.
+- Manually check for a new 7-Zip version, or enable the weekly check while YA7 is running. See [privacy](docs/PRIVACY.md).
 
-## Sicherheit und Grenzen
+The bundled engine is **7-Zip 26.05**. Version checks report upstream releases; they do not download or replace the engine. Engine updates ship in a new signed YA7 release.
 
-Vorhandene Ausgaben werden nicht automatisch ueberschrieben. Komprimierte TAR-Stroeme werden in eigene temporaere Dateien geschrieben; Headernamen bestimmen keine Ausgabepfade. Alle inneren Entpackpfade werden geprueft, symbolische und harte Verknuepfungen abgelehnt. Zwischenarchive werden bei Erfolg, Fehler und Abbruch entfernt. Passwoerter werden ueber stdin uebergeben und nicht gespeichert.
+## Screenshots
 
-Kein Bearbeiten bestehender Archive, keine Mehrteilarchive und keine beliebig rekursiven verschachtelten Archive. Verschluesselte Dateinamen werden weiterhin nicht geoeffnet. Fortschritt unbestimmt. Kein Finder-Doppelklick-Dateihandler und kein eigener Dateimanager fuer Umbenennen/Kopieren/Loeschen. Die bisherigen Bundle-Kennungen bleiben fuer Einstellungen und Finder-Identitaet erhalten.
+<picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/settings-dark.png"><img src="docs/images/settings-light.png" width="540" alt="YA7 settings with archive format and weekly 7-Zip version checking"></picture>
 
-Separat bekannte Punkte: ueberlappende Archiv-Leseauftraege koennten aeltere Ergebnisse einsetzen; erfolgreiche Finder-Ausgaben bleiben fuer die Uebernahme vorlaeufig im Extension-Temp-Verzeichnis. Beide Punkte wurden hier nicht automatisch umgebaut.
+## Build and test
 
-## Entwicklung, Tests und Auslieferung
+Install Xcode with the macOS SDK, select its command-line tools and accept its license. Open `YA7.xcodeproj`, choose the **YA7** scheme and run/build for **My Mac**. No third-party package manager is required. The official engine and corresponding source archive are included.
 
-`YA7.xcodeproj` mit Schema YA7 oeffnen. `sh build-app.sh` baut alle Universal-Komponenten und exportiert die signierte App. Lokale Entwicklung bleibt mit Ad-hoc-Signierung moeglich. Das eingecheckte Xcode-Projekt benoetigt keine Drittanbieter-Generatoren; `python3 Scripts/generate-project.py` aktualisiert Quellen und Finder-Typregeln aus dem gemeinsamen Katalog. Der Generator benoetigt die installierten Xcode-Werkzeuge.
+```sh
+# Local ad-hoc Universal build; does not install or upload the app.
+YA7_BUILD_ROOT="$PWD/.build/xcode" sh build-app.sh "$PWD/dist/YA7.app"
 
-18 Xcode-Funktionstests bestanden: bisherige ZIP-/7z-Pruefungen, neue TAR-Roundtrips und Auswahl, Zielkonflikte, gefaehrliche innere Pfade, Abbruch, zusaetzliche CAB/ISO/DMG/Zstandard-Fixtures und netzwerkfreie Versions-/Intervall-/Fehlertests. Testbeispiele sind im Quellprojekt enthalten. Zusaetzlich eine echte Versionsabfrage gegen das offizielle Projekt erfolgreich.
+# Existing Xcode app-host tests; use an unlocked graphical macOS session.
+xcodebuild -project YA7.xcodeproj -scheme YA7 \
+  -destination 'platform=macOS' -derivedDataPath .build/tests \
+  CODE_SIGN_IDENTITY=- OTHER_CODE_SIGN_FLAGS=--timestamp=none test
+```
 
-Einstellungen hell/dunkel sowie die Finder-Konfigurationsansicht mit TAR.XZ visuell geprueft. Die separate native Finder-Ansichtsprobe ist kein Finder-Screenshot. Ein erneuter Live-Test ueber das echte Finder-Rechtsklick-Menue war mit den verfuegbaren Werkzeugen nicht moeglich. Intel und macOS 14 wurden kompiliert, nicht auf separaten Systemen ausgefuehrt. Frischer Download-/Installationstest auf einem zweiten Mac bleibt offen.
+Local builds are not notarized. See [release instructions](docs/RELEASING.md) and [notarization](NOTARISIERUNG.md) for Developer-ID distribution. Regenerate the committed project and Finder type declarations with `python3 Scripts/generate-project.py` only when source/catalog membership changes.
 
-Developer-ID- und Notarisierungsablauf: `NOTARISIERUNG.md`. Die 0.2.6-DMG bleibt als Rueckfallversion erhalten. Der aktuelle Nachweis liegt neben dem Quellordner unter `YA7-Notarisierung-0.2.7.json`.
+## Status and limitations
 
-## Lizenzen und Quellen
+YA7 is an early release. Version 0.2.7 passed 18 local Xcode tests, a Universal release build and Apple notarization. This is not a claim of exhaustive compatibility or a security audit. GitHub Actions is configured only for standard macOS runners in this public repository, which are currently free under GitHub's public-repository rules. Jobs skip private repositories. No larger runners, artifact/cache uploads or paid add-ons are configured. The first hosted CI run is pending publication. See [GitHub Actions billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions).
 
-YA7 -> **Lizenzen und Quellcode ...** oeffnet die vollstaendigen LGPL-/Herstellerhinweise und das passende originale 7-Zip-Quellarchiv. Herkunft und SHA-256 stehen in `Vendor/7zip/Source-Provenance.json`. Das Vendor-Binary wurde nicht funktional geaendert; gebuendelte Kopien werden fuer macOS signiert.
+Intel/macOS 14 runtime testing, a fresh installation on a second Mac and a repeat of the latest features through Finder's actual context menu remain outstanding. Native Finder configuration views and selection validation were checked separately.
 
-7-Zip Copyright (C) 1999-2026 Igor Pavlov. LGPL-2.1-oder-spaeter, BSD und unRAR-Bedingungen gelten unveraendert. Eigene YA7-Lizenz, Anbieterangaben und formale Namens-/Rechtepruefung sind vor einer oeffentlichen Freigabe noch festzulegen. Die selbst erzeugten Test-Fixtures enthalten ausschliesslich YA7-Beispieltext. Apples UI-Symbole sind nicht durch eine eigene YA7-Lizenz neu lizenziert. App-Icon: **Zip Seven**, separate blaue Sieben mit Reissverschluss, alle Standard-/Retina-Groessen.
+No editing existing archives, multipart archives, arbitrary recursive nested archives, encrypted filenames or Finder double-click association yet. ISO/DMG images are read as archives rather than mounted; some variants/encryption methods are unsupported. Progress is currently indeterminate. Files containing links are rejected on extraction.
+
+Known follow-ups: overlapping archive reads may publish stale navigation results; successful Finder outputs remain temporarily available for the host to import, with their cleanup lifecycle still to be improved.
+
+## License and attribution
+
+YA7's own source code is **LGPL-2.1-or-later**. [LICENSING.md](LICENSING.md) defines its scope and third-party exceptions. 7-Zip by Igor Pavlov retains its LGPL/BSD/unRAR terms; original notices and matching source are included. Apple-provided interface symbols retain Apple's terms. YA7 is an independent interface, not an official 7-Zip or Apple product.

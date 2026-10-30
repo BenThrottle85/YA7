@@ -6,11 +6,10 @@ Finale Datei: `YA7-0.2.7-macOS-notarisiert.dmg`. Ticket angeheftet und validiert
 Gatekeeper akzeptiert DMG und enthaltene App als **Notarized Developer ID**.
 Ein frischer Installationstest auf einem zweiten Mac steht noch aus.
 
-Auf diesem Mac eingerichtet: Developer-ID-Team `6P7HL9KX2E`,
-Signieridentität `Developer ID Application: Michael Huss (6P7HL9KX2E)`,
-Notary-Schlüsselbundprofil `YA7-notary`. Dies sind Bezeichnungen, keine Zugangsdaten.
-Der folgende Ablauf dient zukünftigen Builds; bestehende finale Dateien werden nicht
-überschrieben. Nachweis neben dem Quellordner: `YA7-Notarisierung-0.2.7.json`.
+Zertifikat, Team-ID und Zugangsdaten werden lokal eingerichtet. Die unten genannten
+Werte sind Platzhalter. Keine privaten Schluessel oder Apple-Passwoerter ins Repository
+aufnehmen. Der folgende Ablauf dient zukuenftigen Builds; vorhandene finale Dateien
+werden nicht ueberschrieben.
 
 ## Einmalig im eigenen Apple-Konto
 

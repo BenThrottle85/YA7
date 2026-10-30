@@ -12,7 +12,7 @@ if [ -e "$output_path" ]; then
     printf 'Output already exists: %s\n' "$output_path" >&2
     exit 1
 fi
-work_root="$project_dir/../../work"
+work_root="${YA7_WORK_ROOT:-$project_dir/../../work}"
 mkdir -p "$work_root"
 stage_root="$(mktemp -d "$work_root/YA7-notary.XXXXXX")"
 python3 "$project_dir/Scripts/verify-release.py" "$app_path" --team-id "$YA7_DEVELOPMENT_TEAM" --report "$stage_root/preflight.json"
