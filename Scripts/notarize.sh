@@ -7,7 +7,7 @@ app_path="${1:-$project_dir/../YA7.app}"
 : "${YA7_DEVELOPMENT_TEAM:?Set your 10-character Apple Team ID.}"
 : "${YA7_NOTARY_PROFILE:?Set an existing notarytool keychain profile; never put passwords in this script.}"
 version="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$app_path/Contents/Info.plist")"
-output_path="${2:-$project_dir/../YA7-$version-macOS-notarisiert.dmg}"
+output_path="${2:-$project_dir/../YA7-$version-macOS.dmg}"
 if [ -e "$output_path" ]; then
     printf 'Output already exists: %s\n' "$output_path" >&2
     exit 1

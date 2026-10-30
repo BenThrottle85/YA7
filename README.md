@@ -10,7 +10,7 @@ A native SwiftUI/AppKit archive utility with a bundled 7-Zip engine and Finder Q
 
 ## Install
 
-Download the notarized DMG from [GitHub Releases](https://github.com/BenThrottle85/YA7/releases), open it and drag **YA7.app** to **Applications**. Quit a running copy before replacing it, then launch YA7 from Applications. macOS may ask you to confirm the first launch.
+Download [YA7-0.2.7-macOS.dmg](https://github.com/BenThrottle85/YA7/releases/download/v0.2.7/YA7-0.2.7-macOS.dmg) from [GitHub Releases](https://github.com/BenThrottle85/YA7/releases), open it and drag **YA7.app** to **Applications**. Quit a running copy before replacing it, then launch YA7 from Applications. macOS may ask you to confirm the first launch.
 
 In Finder, enable **YA7: Packen**, **YA7: Entpacken** and **YA7: Prüfen** under **Quick Actions → Customize**. Choose **Fertig** after a successful action so Finder can import the result. The app currently uses a German interface.
 

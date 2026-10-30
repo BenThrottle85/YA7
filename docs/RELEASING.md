@@ -23,7 +23,7 @@ The user requires **no paid Actions runs or other new costs**. If the repository
 export YA7_BUILD_ROOT="$PWD/.build/release"
 export YA7_WORK_ROOT="$PWD/.build/notary"
 sh build-app.sh "$PWD/dist/YA7.app"
-sh Scripts/notarize.sh "$PWD/dist/YA7.app" "$PWD/dist/YA7-0.2.7-macOS-notarisiert.dmg"
+sh Scripts/notarize.sh "$PWD/dist/YA7.app" "$PWD/dist/YA7-0.2.7-macOS.dmg"
 ```
 
 4. Require Apple `Accepted`, inspect the notary log, validate the attached ticket, assess both image and contained app with Gatekeeper, and compare the mounted app with the verified export. Compute SHA-256 **after** stapling. Never modify/re-sign the final app or DMG after these checks.

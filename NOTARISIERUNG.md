@@ -2,7 +2,7 @@
 
 Stand: 30. Oktober 2026. Ziel: direkte DMG-Weitergabe außerhalb des Mac App Store.
 Version 0.2.7 (Build 9) wurde von Apple mit **Accepted** ohne Feststellungen notarisiert.
-Finale Datei: `YA7-0.2.7-macOS-notarisiert.dmg`. Ticket angeheftet und validiert;
+Finale Datei: `YA7-0.2.7-macOS.dmg`. Ticket angeheftet und validiert;
 Gatekeeper akzeptiert DMG und enthaltene App als **Notarized Developer ID**.
 Ein frischer Installationstest auf einem zweiten Mac steht noch aus.
 
@@ -64,7 +64,7 @@ Zeitstempel, Hardened Runtime, fehlende Debug-Berechtigung und Lizenz-/Quellpake
 Das Notarisierungsskript erstellt die DMG zunächst ausschließlich im Arbeitsordner,
 signiert sie und übermittelt sie mit `notarytool` an Apple. Nur bei **Accepted**, einem
 Prüfprotokoll ohne Feststellungen, erfolgreichem Stapling und Gatekeeper-Prüfung wird
-sie nach `YA7-<Version>-macOS-notarisiert.dmg` exportiert. Das Protokoll bleibt unter
+sie nach `YA7-<Version>-macOS.dmg` exportiert. Das Protokoll bleibt unter
 `work/YA7-notary.*` erhalten. Die SHA-256-Prüfsumme wird nach dem Stapling berechnet.
 Eine existierende finale Ausgabe wird nicht überschrieben.
 
