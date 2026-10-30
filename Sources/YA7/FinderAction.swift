@@ -60,3 +60,24 @@ enum FinderInputLoader {
         }
     }
 }
+
+// Finder consumes returned files after the extension has completed its request.
+// Use the system replacement directory rather than an extension scratch folder.
+enum FinderOutput {
+    static func makeDirectory() throws -> URL {
+        try FileManager.default.url(for: .itemReplacementDirectory, in: .userDomainMask,
+                                    appropriateFor: URL(fileURLWithPath: NSHomeDirectory()), create: true)
+    }
+
+    static func provider(for output: URL, isDirectory: Bool) -> NSItemProvider {
+        let provider = NSItemProvider()
+        let type: UTType = isDirectory ? .folder : UTType(filenameExtension: output.pathExtension) ?? .data
+        provider.suggestedName = output.lastPathComponent
+        provider.registerFileRepresentation(forTypeIdentifier: type.identifier,
+                                            fileOptions: [.openInPlace], visibility: .all) { completion in
+            completion(output, false, nil)
+            return nil
+        }
+        return provider
+    }
+}

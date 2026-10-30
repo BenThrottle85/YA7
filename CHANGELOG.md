@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.9 — 2026-10-30
+
+- Fix Finder output handoff: stage archives and extracted folders in the system item replacement directory, as required by Apple's Action Extension example, so Finder can place the result after Done.
+- Add a regression test that creates a real ZIP, extracts it, consumes both output providers and verifies original-file preservation. Direct Finder UI verification remains pending.
+
 ## 0.2.8 — 2026-10-30
 
 - Add complete English and German interface resources; follow macOS language preferences with English fallback.

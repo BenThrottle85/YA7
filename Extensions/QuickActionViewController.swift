@@ -42,8 +42,7 @@ final class QuickActionSession {
                 try action.validate(urls)
                 inputs = urls
                 if action != .check {
-                    let temporary = FileManager.default.temporaryDirectory.appendingPathComponent("Archiv-Schnellaktion-\(UUID().uuidString)")
-                    try FileManager.default.createDirectory(at: temporary, withIntermediateDirectories: false)
+                    let temporary = try FinderOutput.makeDirectory()
                     workingDirectory = temporary
                     destination = temporary
                 }
@@ -133,13 +132,7 @@ final class QuickActionViewController: NSViewController {
             // Return every original provider unchanged: Finder must retain input files.
             var items = self.originals
             if self.session.phase == .success, let output = self.session.output {
-                let provider = NSItemProvider()
-                let type = output.hasDirectoryPath || self.session.action == .extract ? UTType.folder : UTType(filenameExtension: output.pathExtension) ?? .data
-                provider.suggestedName = output.lastPathComponent
-                provider.registerFileRepresentation(forTypeIdentifier: type.identifier, fileOptions: [.openInPlace], visibility: .all) { completion in
-                    completion(output, false, nil)
-                    return nil
-                }
+                let provider = FinderOutput.provider(for: output, isDirectory: self.session.action == .extract)
                 let item = NSExtensionItem()
                 item.attachments = [provider]
                 items.append(item)

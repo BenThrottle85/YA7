@@ -25,6 +25,36 @@ final class ArchiveEngineTests: XCTestCase {
         XCTAssertTrue(FileManager.default.fileExists(atPath: file.path))
     }
 
+    func testFinderOutputSurvivesHandoffForArchiveAndFolder() async throws {
+        let (root, file) = try fixture()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let directory = try FinderOutput.makeDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        XCTAssertTrue(directory.path.contains("TemporaryItems"))
+        let archive = directory.appendingPathComponent("Finder result.zip")
+        _ = try await ArchiveEngine().create(sources: [file], target: archive, format: "zip", level: "5", password: "")
+        let folder = directory.appendingPathComponent("Extracted", isDirectory: true)
+        _ = try await ArchiveEngine().extract(archive, destination: folder, password: "", selection: [])
+        for (output, type, isDirectory) in [(archive, "public.zip-archive", false), (folder, "public.folder", true)] {
+            let provider = FinderOutput.provider(for: output, isDirectory: isDirectory)
+            XCTAssertEqual(provider.suggestedName, output.lastPathComponent)
+            let received: URL = try await withCheckedThrowingContinuation { continuation in
+                provider.loadInPlaceFileRepresentation(forTypeIdentifier: type) { url, _, error in
+                    do {
+                        if let error { throw error }
+                        let url = try XCTUnwrap(url)
+                        // Simulate Finder consuming the output after request completion.
+                        let copy = root.appendingPathComponent(output.lastPathComponent)
+                        try FileManager.default.copyItem(at: url, to: copy)
+                        continuation.resume(returning: copy)
+                    } catch { continuation.resume(throwing: error) }
+                }
+            }
+            XCTAssertTrue(FileManager.default.fileExists(atPath: received.path))
+        }
+        XCTAssertTrue(FileManager.default.fileExists(atPath: file.path))
+    }
+
     private func fixture() throws -> (URL, URL) {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent("YA7Tests-\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
