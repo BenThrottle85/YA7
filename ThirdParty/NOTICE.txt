@@ -1,0 +1,40 @@
+YA7 – Yet Another 7-Zip GUI for macOS
+Third-party software and source-code notice
+
+This app includes 7-Zip 26.05 (7zz), Copyright (C) 1999–2026 Igor Pavlov.
+7-Zip is invoked as a separate command-line program. Its executable from the
+original upstream macOS archive has not been changed functionally; the packaged
+copies are re-signed for macOS distribution. 7-Zip is not the author or publisher
+of YA7. YA7 is an independent interface.
+
+7-Zip licensing:
+- GNU LGPL version 2.1 or, at your option, a later version, for most code.
+- GNU LGPL with the unRAR license restriction for some code.
+- BSD 3-clause and BSD 2-clause licenses for some code.
+
+Read 7zip-License.txt for the upstream copyright notices, BSD texts and the
+unRAR restriction. The complete LGPL 2.1 text is included as LGPL-2.1.txt.
+These third-party license terms remain applicable independently of any YA7 terms.
+
+Complete corresponding source:
+The unchanged official 7-Zip 26.05 source archive is supplied with the containing
+YA7 app as Contents/Resources/Legal/7z2605-src.tar.xz. It includes the source,
+build files and upstream documentation. Source-Provenance.json records upstream
+URLs and SHA-256 checksums. The containing app also supplies these sources for
+its bundled Finder extensions and all copies of 7zz. Use the YA7 application
+menu “Lizenzen und Quellcode …” to access this directory.
+
+Upstream project: https://www.7-zip.org/
+Release: https://github.com/ip7z/7zip/releases/tag/26.05
+Source archive: https://github.com/ip7z/7zip/releases/download/26.05/7z2605-src.tar.xz
+
+7-Zip may be used commercially subject to its license obligations. The unRAR
+code must not be used to recreate the proprietary RAR compression algorithm.
+YA7 creates ZIP and 7z archives; it does not create RAR archives.
+
+The name “macOS” is used to describe platform compatibility. Apple is not the
+publisher of YA7. Native interface symbols are provided by Apple frameworks;
+the YA7 “Zip Seven” app icon is a separate generated design.
+Apple-provided interface symbols are not relicensed by any YA7 source-code
+license. Their use remains subject to Apple's terms for Apple-platform apps.
+See https://developer.apple.com/design/human-interface-guidelines/sf-symbols

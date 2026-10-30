@@ -1,0 +1,1 @@
+Locally generated YA7 test fixtures. Each contains hello.txt with the bytes "YA7 format fixture\n". ISO/DMG were generated with macOS hdiutil; TAR.ZST with macOS bsdtar; CAB is a single uncompressed file using the Microsoft Cabinet layout. No third-party payloads.
