@@ -1,6 +1,6 @@
 # YA7 - Yet Another 7-Zip GUI for macOS
 
-Version **0.2.8 (Build 10)**. Native macOS-App ab macOS 14, Universal-Build fuer Apple Silicon und Intel. Enthalten: offizielles 7-Zip 26.05 und drei Finder-Schnellaktionen. Kein Homebrew erforderlich.
+Version **0.2.9 (Build 11)**. Native macOS-App ab macOS 14, Universal-Build fuer Apple Silicon und Intel. Enthalten: offizielles 7-Zip 26.05 und drei Finder-Schnellaktionen. Kein Homebrew erforderlich.
 
 ## Sprachen
 
@@ -26,7 +26,7 @@ Tests, Vorschau-/Demo-Renderings und Finder-Erweiterungen starten keine automati
 
 ## Installation und Finder
 
-`YA7-0.2.8-macOS.dmg` oeffnen und YA7.app auf Programme ziehen. Eine vorhandene laufende YA7-App vor dem Austausch regulär schliessen. Danach aus Programme starten. Keine Testkopie aus einem Build-Ordner starten.
+`YA7-0.2.9-macOS.dmg` oeffnen und YA7.app auf Programme ziehen. Eine vorhandene laufende YA7-App vor dem Austausch regulär schliessen. Danach aus Programme starten. Keine Testkopie aus einem Build-Ordner starten.
 
 Finder: Rechtsklick -> Schnellaktionen -> Anpassen. **YA7: Packen**, **YA7: Entpacken**, **YA7: Pruefen** aktivieren. Bei Erfolg **Fertig** waehlen, damit Finder die Ausgaben uebernimmt. Die Haupt-App hat eine eigene Zielordnerauswahl. Keine automatische Installation oder oeffentliche Veroeffentlichung durch die Buildskripte.
 
@@ -36,13 +36,13 @@ Vorhandene Ausgaben werden nicht automatisch ueberschrieben. Komprimierte TAR-St
 
 Kein Bearbeiten bestehender Archive, keine Mehrteilarchive und keine beliebig rekursiven verschachtelten Archive. Verschluesselte Dateinamen werden weiterhin nicht geoeffnet. Fortschritt unbestimmt. Kein Finder-Doppelklick-Dateihandler und kein eigener Dateimanager fuer Umbenennen/Kopieren/Loeschen. Die bisherigen Bundle-Kennungen bleiben fuer Einstellungen und Finder-Identitaet erhalten.
 
-Separat bekannte Punkte: ueberlappende Archiv-Leseauftraege koennten aeltere Ergebnisse einsetzen; erfolgreiche Finder-Ausgaben bleiben fuer die Uebernahme vorlaeufig im Extension-Temp-Verzeichnis. Beide Punkte wurden hier nicht automatisch umgebaut.
+Separat bekannte Punkte: ueberlappende Archiv-Leseauftraege koennten aeltere Ergebnisse einsetzen; erfolgreiche Finder-Ausgaben bleiben fuer die Uebernahme vorlaeufig im systemseitigen Austauschverzeichnis. Beide Punkte wurden hier nicht automatisch umgebaut.
 
 ## Entwicklung, Tests und Auslieferung
 
 `YA7.xcodeproj` mit Schema YA7 oeffnen. `sh build-app.sh` baut alle Universal-Komponenten und exportiert die signierte App. Lokale Entwicklung bleibt mit Ad-hoc-Signierung moeglich. Das eingecheckte Xcode-Projekt benoetigt keine Drittanbieter-Generatoren; `python3 Scripts/generate-project.py` aktualisiert Quellen und Finder-Typregeln aus dem gemeinsamen Katalog. Der Generator benoetigt die installierten Xcode-Werkzeuge.
 
-22 Xcode-Funktionstests je Sprache bestanden: bisherige ZIP-/7z-Pruefungen, neue TAR-Roundtrips und Auswahl, Zielkonflikte, gefaehrliche innere Pfade, Abbruch, zusaetzliche CAB/ISO/DMG/Zstandard-Fixtures und netzwerkfreie Versions-/Intervall-/Fehlertests. Testbeispiele sind im Quellprojekt enthalten. Zusaetzlich eine echte Versionsabfrage gegen das offizielle Projekt erfolgreich.
+23 Xcode-Funktionstests bestanden: bisherige ZIP-/7z-Pruefungen, neue TAR-Roundtrips und Auswahl, Zielkonflikte, gefaehrliche innere Pfade, Abbruch, zusaetzliche CAB/ISO/DMG/Zstandard-Fixtures und netzwerkfreie Versions-/Intervall-/Fehlertests. Testbeispiele sind im Quellprojekt enthalten. Zusaetzlich eine echte Versionsabfrage gegen das offizielle Projekt erfolgreich.
 
 Einstellungen hell/dunkel sowie die Finder-Konfigurationsansicht mit TAR.XZ visuell geprueft. Die separate native Finder-Ansichtsprobe ist kein Finder-Screenshot. Ein erneuter Live-Test ueber das echte Finder-Rechtsklick-Menue war mit den verfuegbaren Werkzeugen nicht moeglich. Intel und macOS 14 wurden kompiliert, nicht auf separaten Systemen ausgefuehrt. Frischer Download-/Installationstest auf einem zweiten Mac bleibt offen.
 
@@ -55,3 +55,5 @@ YA7 -> **Lizenzen und Quellcode ...** oeffnet die vollstaendigen LGPL-/Herstelle
 7-Zip Copyright (C) 1999-2026 Igor Pavlov. LGPL-2.1-oder-spaeter, BSD und unRAR-Bedingungen gelten unveraendert. Der eigene YA7-Code steht unter LGPL-2.1-or-later; Einzelheiten und Ausnahmen stehen in [LICENSING.md](../LICENSING.md). Anbieterangaben und formale Namens-/Rechtepruefung sind getrennt zu beurteilen. Die selbst erzeugten Test-Fixtures enthalten ausschliesslich YA7-Beispieltext. Apples UI-Symbole sind nicht durch eine eigene YA7-Lizenz neu lizenziert. App-Icon: **Zip Seven**, separate blaue Sieben mit Reissverschluss, alle Standard-/Retina-Groessen.
 
 ![YA7-Einstellungen auf Deutsch](images/settings-de-light.png)
+
+Finder-Praxistest mit 0.2.9 erfolgreich: Nach Erstellen → Fertig erschien das 7z-Archiv neben der Originaldatei. Archivintegrität und identischer Inhalt wurden geprüft; die Finder-Klicks führte der Benutzer aus.

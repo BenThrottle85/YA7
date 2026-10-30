@@ -3,7 +3,7 @@
 ## 0.2.9 — 2026-10-30
 
 - Fix Finder output handoff: stage archives and extracted folders in the system item replacement directory, as required by Apple's Action Extension example, so Finder can place the result after Done.
-- Add a regression test that creates a real ZIP, extracts it, consumes both output providers and verifies original-file preservation. Direct Finder UI verification remains pending.
+- Add a regression test that creates a real ZIP, extracts it, consumes both output providers and verifies original-file preservation. A user-assisted real Finder 7z creation test passed, including automated integrity and exact-content verification.
 
 ## 0.2.8 — 2026-10-30
 

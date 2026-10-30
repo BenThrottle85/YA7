@@ -23,7 +23,7 @@ The user requires **no paid Actions runs or other new costs**. If the repository
 export YA7_BUILD_ROOT="$PWD/.build/release"
 export YA7_WORK_ROOT="$PWD/.build/notary"
 sh build-app.sh "$PWD/dist/YA7.app"
-sh Scripts/notarize.sh "$PWD/dist/YA7.app" "$PWD/dist/YA7-0.2.8-macOS.dmg"
+sh Scripts/notarize.sh "$PWD/dist/YA7.app" "$PWD/dist/YA7-0.2.9-macOS.dmg"
 ```
 
 4. Require Apple `Accepted`, inspect the notary log, validate the attached ticket, assess both image and contained app with Gatekeeper, and compare the mounted app with the verified export. Compute SHA-256 **after** stapling. Never modify/re-sign the final app or DMG after these checks.
@@ -32,6 +32,6 @@ sh Scripts/notarize.sh "$PWD/dist/YA7.app" "$PWD/dist/YA7-0.2.8-macOS.dmg"
 
 ## First publication
 
-The prepared local release directory is outside the repository, under `outputs/YA7-GitHub-Release-0.2.8` in the maintainer workspace. It is not committed. Review the files and use its release notes for a **draft** GitHub Release tagged `v0.2.8`, targeting the reviewed publication commit. Upload the matching assets before publishing. Do not tag the original initialization commit: it predates the public licensing and documentation.
+The prepared local release directory is outside the repository, under `outputs/YA7-GitHub-Release-0.2.9` in the maintainer workspace. It is not committed. Review the files and use its release notes for a **draft** GitHub Release tagged `v0.2.9`, targeting the reviewed publication commit. Upload the matching assets before publishing. Do not tag the original initialization commit: it predates the public licensing and documentation.
 
 No workflow auto-publishes a release, imports certificates or installs a build. Do not upload private Apple keys, `.env` files, workspace logs, personal paths or raw local test reports as release assets.

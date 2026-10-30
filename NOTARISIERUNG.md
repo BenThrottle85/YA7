@@ -1,8 +1,8 @@
 # YA7: Developer-ID-Signierung und Notarisierung
 
 Stand: 30. Oktober 2026. Ziel: direkte DMG-Weitergabe außerhalb des Mac App Store.
-Version 0.2.8 (Build 10) wurde von Apple mit **Accepted** ohne Feststellungen notarisiert.
-Finale Datei: `YA7-0.2.8-macOS.dmg`. Ticket angeheftet und validiert;
+Version 0.2.9 (Build 11) wurde von Apple mit **Accepted** ohne Feststellungen notarisiert.
+Finale Datei: `YA7-0.2.9-macOS.dmg`. Ticket angeheftet und validiert;
 Gatekeeper akzeptiert DMG und enthaltene App als **Notarized Developer ID**.
 Ein frischer Installationstest auf einem zweiten Mac steht noch aus.
 

@@ -6,4 +6,4 @@ Previously YA7 staged output in its generic temporary directory. The updated imp
 
 23 Xcode tests passed with zero failures, including real ZIP creation, extraction, provider consumption and input preservation. Universal Developer ID build passed.
 
-These tests exercise provider handoff, not Finder's final placement. Direct Finder verification after Done is still required. This correction does not install or replace the user's existing app.
+YA7 0.2.9 (build 11) was subsequently installed in Applications at the user's request. The registered Finder pack extension was verified as 0.2.9. The user performed Create → Done and confirmed the resulting YA7-Test.7z appeared beside YA7-Test.txt. Automated checks confirmed the archive exists, passes 7-Zip integrity testing and contains byte-identical original content; the original file is unchanged. Direct Finder interaction was performed by the user because no desktop UI control tool was available. This validates the 7z case on this Mac; extraction, ZIP and second-Mac runtime checks remain separate.
