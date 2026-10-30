@@ -60,6 +60,7 @@ source_paths += ['Extensions/QuickActionViewController.swift', 'Tests/YA7Tests/A
 other_paths = ['Bundle/Info.plist', 'Bundle/Credits.rtf', 'Bundle/YA7.icns', 'Bundle/QuickAction.entitlements', 'Bundle/Helper.entitlements']
 other_paths += [f'Bundle/{name}-Info.plist' for name in ('PackAction', 'ExtractAction', 'CheckAction')]
 other_paths += ['Bundle/ActionIcons.xcassets']
+other_paths += sorted(str(p.relative_to(ROOT)) for parent in [ROOT/'Sources/YA7/Resources', ROOT/'Bundle/Localization'] for p in parent.glob('*/*') if p.is_file())
 other_paths += ['Scripts/build-dmg.sh', 'Scripts/copy-7zip.sh', 'Scripts/register-finder-actions.sh', 'Scripts/GenerateQuickActionIcons.swift', 'build-app.sh', 'README.md', 'NOTARISIERUNG.md', 'Vendor/7zip/License.txt', 'ThirdParty/NOTICE.txt', 'ThirdParty/LGPL-2.1.txt', 'Vendor/7zip/Source-Provenance.json', 'Vendor/7zip/7z2605-src.tar.xz', 'Scripts/verify-release.py', 'Scripts/notarize.sh', 'Scripts/ExportArchiveFormats.swift', 'Tests/YA7Tests/Fixtures']
 for path in source_paths + other_paths:
     kind = 'folder' if path.endswith('/Fixtures') else 'sourcecode.swift' if path.endswith('.swift') else 'folder.assetcatalog' if path.endswith('.xcassets') else 'image.icns' if path.endswith('.icns') else 'image.png' if path.endswith('.png') else 'text.plist.xml' if path.endswith(('.plist', '.entitlements')) else 'text'
@@ -70,7 +71,7 @@ config_group = obj('configuration', 'PBXGroup', name='Konfiguration und Ressourc
 products = []
 targets = []
 target_ids = {name: uid('target:'+name) for name in ('YA7', 'PackAction', 'ExtractAction', 'CheckAction', 'YA7Tests')}
-shared = ['ArchiveEntry.swift', 'ArchiveEngine.swift', 'SharedControls.swift', 'FinderAction.swift', 'ArchiveFormat.swift']
+shared = ['ArchiveEntry.swift', 'ArchiveEngine.swift', 'SharedControls.swift', 'FinderAction.swift', 'ArchiveFormat.swift', 'Localization.swift']
 extension_sources = ['Sources/YA7/'+x for x in shared] + ['Extensions/QuickActionViewController.swift']
 
 for name in target_ids:
@@ -91,8 +92,7 @@ for name in target_ids:
     if test:
         resources = [obj(name+'fixtures', 'PBXBuildFile', fileRef=files['Tests/YA7Tests/Fixtures'])]
     if app:
-        resources = [obj(name+'credits', 'PBXBuildFile', fileRef=files['Bundle/Credits.rtf']),
-                     obj(name+'appicon', 'PBXBuildFile', fileRef=files['Bundle/YA7.icns'])]
+        resources = [obj(name+'appicon', 'PBXBuildFile', fileRef=files['Bundle/YA7.icns'])]
     phases.append(obj(name+'resources', 'PBXResourcesBuildPhase', buildActionMask='2147483647', files=resources, runOnlyForDeploymentPostprocessing='0'))
     dependencies = []
     if app:
@@ -104,8 +104,8 @@ for name in target_ids:
         phases.append(obj('embed', 'PBXCopyFilesBuildPhase', buildActionMask='2147483647', dstPath='', dstSubfolderSpec='13', files=embed, name='Finder-Schnellaktionen einbetten', runOnlyForDeploymentPostprocessing='0'))
     if not test:
         phases.append(obj(name+'7zip', 'PBXShellScriptBuildPhase', buildActionMask='2147483647', files=[],
-            inputPaths=['$(SRCROOT)/Vendor/7zip/7zz', '$(SRCROOT)/Vendor/7zip/License.txt', '$(SRCROOT)/Scripts/copy-7zip.sh', '$(SRCROOT)/Bundle/Helper.entitlements', '$(SRCROOT)/ThirdParty/NOTICE.txt', '$(SRCROOT)/ThirdParty/LGPL-2.1.txt', '$(SRCROOT)/Vendor/7zip/Source-Provenance.json', '$(SRCROOT)/Vendor/7zip/7z2605-src.tar.xz'],
-            outputPaths=['$(TARGET_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/Helpers/7zz', '$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/7zip-Lizenz.txt', '$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Legal/NOTICE.txt', '$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Legal/LGPL-2.1.txt', '$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Legal/7zip-License.txt'] + (['$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Legal/7z2605-src.tar.xz', '$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Legal/Source-Provenance.json'] if app else []),
+            inputPaths=['$(SRCROOT)/Vendor/7zip/7zz', '$(SRCROOT)/Vendor/7zip/License.txt', '$(SRCROOT)/Scripts/copy-7zip.sh', '$(SRCROOT)/Bundle/Helper.entitlements', '$(SRCROOT)/ThirdParty/NOTICE.txt', '$(SRCROOT)/ThirdParty/LGPL-2.1.txt', '$(SRCROOT)/Vendor/7zip/Source-Provenance.json', '$(SRCROOT)/Vendor/7zip/7z2605-src.tar.xz'] + [f'$(SRCROOT)/Sources/YA7/Resources/{lang}.lproj/Localizable.strings' for lang in ['en', 'de']] + [f'$(SRCROOT)/Bundle/Localization/{lang}.lproj/InfoPlist-{name}.strings' for lang in ['en', 'de']] + [f'$(SRCROOT)/Bundle/Localization/{lang}.lproj/Credits.rtf' for lang in ['en', 'de']] + ['$(SRCROOT)/LICENSE', '$(SRCROOT)/LICENSING.md'],
+            outputPaths=['$(TARGET_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/Helpers/7zz', '$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/7zip-Lizenz.txt', '$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Legal/NOTICE.txt', '$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Legal/LGPL-2.1.txt', '$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Legal/7zip-License.txt'] + (['$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Legal/7z2605-src.tar.xz', '$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Legal/Source-Provenance.json'] if app else []) + [f'$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/{lang}.lproj/{file}' for lang in ['en', 'de'] for file in ['Localizable.strings', 'InfoPlist.strings', 'Credits.rtf']] + ['$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Legal/YA7-License.txt', '$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Legal/YA7-Licensing.md'],
             name='7-Zip einbetten und lokal signieren', shellPath='/bin/sh', shellScript='"$SRCROOT/Scripts/copy-7zip.sh"', runOnlyForDeploymentPostprocessing='0'))
     settings = dict(PRODUCT_NAME=name, PRODUCT_MODULE_NAME=name, SWIFT_VERSION='5.0', MACOSX_DEPLOYMENT_TARGET='14.0',
         SDKROOT='macosx', SUPPORTED_PLATFORMS='macosx', CODE_SIGN_STYLE='Manual', CODE_SIGN_IDENTITY='-',
@@ -133,7 +133,7 @@ product_group = obj('products', 'PBXGroup', name='Products', children=products, 
 main_group = obj('main', 'PBXGroup', children=[source_group,config_group,product_group], sourceTree='<group>')
 project = obj('project', 'PBXProject', attributes={'LastUpgradeCheck':'1600','BuildIndependentTargetsInParallel':'YES'},
     buildConfigurationList=configuration_list('project',{'CLANG_ENABLE_MODULES':'YES','MACOSX_DEPLOYMENT_TARGET':'14.0'}),
-    compatibilityVersion='Xcode 14.0', developmentRegion='de', knownRegions=['de','Base'], mainGroup=main_group,
+    compatibilityVersion='Xcode 14.0', developmentRegion='en', knownRegions=['en','de','Base'], mainGroup=main_group,
     productRefGroup=product_group, projectDirPath='', projectRoot='', targets=targets)
 
 def encode(value, indent=0):

@@ -10,9 +10,13 @@ A native SwiftUI/AppKit archive utility with a bundled 7-Zip engine and Finder Q
 
 ## Install
 
-Download [YA7-0.2.7-macOS.dmg](https://github.com/BenThrottle85/YA7/releases/download/v0.2.7/YA7-0.2.7-macOS.dmg) from [GitHub Releases](https://github.com/BenThrottle85/YA7/releases), open it and drag **YA7.app** to **Applications**. Quit a running copy before replacing it, then launch YA7 from Applications. macOS may ask you to confirm the first launch.
+Download [YA7-0.2.8-macOS.dmg](https://github.com/BenThrottle85/YA7/releases/download/v0.2.8/YA7-0.2.8-macOS.dmg) from [GitHub Releases](https://github.com/BenThrottle85/YA7/releases), open it and drag **YA7.app** to **Applications**. Quit a running copy before replacing it, then launch YA7 from Applications. macOS may ask you to confirm the first launch.
 
-In Finder, enable **YA7: Packen**, **YA7: Entpacken** and **YA7: Prüfen** under **Quick Actions → Customize**. Choose **Fertig** after a successful action so Finder can import the result. The app currently uses a German interface.
+In Finder, enable **YA7: Packen**, **YA7: Entpacken** and **YA7: Prüfen** under **Quick Actions → Customize**. Choose **Fertig** after a successful action so Finder can import the result. YA7 supports **English and German**, follows your macOS app-language preferences, and falls back to English.
+
+## Languages
+
+YA7 follows the language preferences selected in macOS. English is the development and fallback language; German is included throughout the interface, menus, errors and Finder Quick Actions. To choose a language just for YA7, use **System Settings → General → Language & Region → Applications**, add YA7, choose English or German and relaunch it. Finder extension names follow the system/Finder language preferences. Your own file and archive names are never translated.
 
 ## Features
 
@@ -52,7 +56,7 @@ Local builds are not notarized. See [release instructions](docs/RELEASING.md) an
 
 ## Status and limitations
 
-YA7 is an early release. Version 0.2.7 passed 18 local Xcode tests, a Universal release build and Apple notarization. This is not a claim of exhaustive compatibility or a security audit. GitHub Actions is configured only for standard macOS runners in this public repository, which are currently free under GitHub's public-repository rules. Jobs skip private repositories. No larger runners, artifact/cache uploads or paid add-ons are configured. The first hosted CI run is pending publication. See [GitHub Actions billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions).
+YA7 is an early release. Version 0.2.8 passed 22 local Xcode tests in each language, a Universal release build and Apple notarization. This is not a claim of exhaustive compatibility or a security audit. GitHub Actions is configured only for standard macOS runners in this public repository, which are currently free under GitHub's public-repository rules. Jobs skip private repositories. No larger runners, artifact/cache uploads or paid add-ons are configured. See [Actions](https://github.com/BenThrottle85/YA7/actions) for current hosted verification. See [GitHub Actions billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions).
 
 Intel/macOS 14 runtime testing, a fresh installation on a second Mac and a repeat of the latest features through Finder's actual context menu remain outstanding. Native Finder configuration views and selection validation were checked separately.
 

@@ -21,9 +21,9 @@ final class ArchiveEngine: @unchecked Sendable {
 
     func run(_ arguments: [String], directory: URL? = nil, password: String? = nil, outputFile: URL? = nil) async throws -> String {
         try Task.checkCancellation()
-        guard let executable else { throw ArchiveFailure.message("7-Zip wurde nicht gefunden. Bitte die vollständige App verwenden.") }
+        guard let executable else { throw ArchiveFailure.message(L10n.text("7-Zip was not found. Please use the complete app bundle.")) }
         if let password, password.contains("\n") || password.contains("\r") {
-            throw ArchiveFailure.message("Das Passwort darf keinen Zeilenumbruch enthalten.")
+            throw ArchiveFailure.message(L10n.text("The password must not contain a line break."))
         }
         return try await withCheckedThrowingContinuation { continuation in
             DispatchQueue.global(qos: .userInitiated).async {
@@ -42,7 +42,7 @@ final class ArchiveEngine: @unchecked Sendable {
                 do {
                     if let outputFile {
                         guard FileManager.default.createFile(atPath: outputFile.path, contents: nil) else {
-                            throw ArchiveFailure.message("Zwischendatei konnte nicht erstellt werden.")
+                            throw ArchiveFailure.message(L10n.text("The temporary file could not be created."))
                         }
                         let handle = try FileHandle(forWritingTo: outputFile)
                         outputHandle = handle; task.standardOutput = handle
@@ -58,9 +58,9 @@ final class ArchiveEngine: @unchecked Sendable {
                     let text = String(decoding: data, as: UTF8.self)
                     if task.terminationStatus != 0 {
                         if text.localizedCaseInsensitiveContains("password") {
-                            throw ArchiveFailure.message("Archiv konnte nicht geöffnet werden. Passwort prüfen; verschlüsselte Dateinamen werden in diesem Grundprototyp noch nicht unterstützt.")
+                            throw ArchiveFailure.message(L10n.text("The archive could not be opened. Check the password; encrypted filenames are not supported yet."))
                         }
-                        throw ArchiveFailure.message("7-Zip meldet einen Fehler (\(task.terminationStatus)).\n" + String(text.suffix(1800)))
+                        throw ArchiveFailure.message(L10n.format("7-Zip reported an error (%@).\n", task.terminationStatus) + String(text.suffix(1800)))
                     }
                     continuation.resume(returning: text)
                 } catch {
@@ -99,7 +99,7 @@ final class ArchiveEngine: @unchecked Sendable {
             let name = item["Path"] ?? ""
             let folder = item["Folder"] == "+" || (item["Attributes"] ?? "").hasPrefix("D")
             return BrowserEntry(id: name, name: (name as NSString).lastPathComponent,
-                size: Int64(item["Size"] ?? "0") ?? 0, kind: folder ? "Ordner" : "Datei",
+                size: Int64(item["Size"] ?? "0") ?? 0, kind: folder ? L10n.text("Folder") : L10n.text("File"),
                 modified: String((item["Modified"] ?? "—").prefix(16)),
                 symbol: folder ? "folder.fill" : "doc", folder: folder)
         }
@@ -107,22 +107,22 @@ final class ArchiveEngine: @unchecked Sendable {
 
     func create(sources: [URL], target: URL, format: String, level: String, password: String) async throws -> String {
         guard ArchiveFormat.writableFormats.contains(where: { $0.id == format }) else {
-            throw ArchiveFailure.message("Dieses Format kann nicht erstellt werden.")
+            throw ArchiveFailure.message(L10n.text("This format cannot be created."))
         }
         let descriptor = ArchiveFormat.named(format)
         guard descriptor.supportsPassword || password.isEmpty else {
-            throw ArchiveFailure.message("Passwortschutz ist nur für ZIP und 7z verfügbar.")
+            throw ArchiveFailure.message(L10n.text("Password protection is only available for ZIP and 7z."))
         }
         guard format != "zip" || password.unicodeScalars.allSatisfy({ $0.value >= 32 && $0.value <= 126 }) else {
-            throw ArchiveFailure.message("7-Zip unterstützt bei ZIP nur Passwörter mit druckbaren ASCII-Zeichen. Für Umlaute und andere Unicode-Zeichen bitte 7z verwenden.")
+            throw ArchiveFailure.message(L10n.text("ZIP passwords must use printable ASCII characters. Use 7z for accented or other Unicode characters."))
         }
-        guard let first = sources.first else { throw ArchiveFailure.message("Bitte mindestens eine Datei auswählen.") }
+        guard let first = sources.first else { throw ArchiveFailure.message(L10n.text("Please select at least one file.")) }
         guard !FileManager.default.fileExists(atPath: target.path) else {
-            throw ArchiveFailure.message("Am Ziel existiert bereits eine Datei. Bitte anderen Namen wählen.")
+            throw ArchiveFailure.message(L10n.text("A file already exists at the destination. Please choose another name."))
         }
         let parent = first.deletingLastPathComponent()
         guard sources.allSatisfy({ $0.deletingLastPathComponent() == parent }) else {
-            throw ArchiveFailure.message("Bitte Dateien aus demselben Ordner auswählen.")
+            throw ArchiveFailure.message(L10n.text("Please select files from the same folder."))
         }
         if let compressor = descriptor.compressor {
             let work = FileManager.default.temporaryDirectory.appendingPathComponent("YA7-Create-\(UUID().uuidString)")
@@ -134,7 +134,7 @@ final class ArchiveEngine: @unchecked Sendable {
             _ = try await run(["a", "-t\(compressor)", "-mx=\(level)", "-bd", "--", compressed.path, tar.lastPathComponent], directory: work)
             try Task.checkCancellation()
             try FileManager.default.moveItem(at: compressed, to: target)
-            return "Archiv erfolgreich erstellt.\n\(target.path)"
+            return L10n.format("Archive created successfully.\n%@", target.path)
         }
         let temp = target.deletingLastPathComponent().appendingPathComponent(".archiv-\(UUID().uuidString).\(format)")
         defer { try? FileManager.default.removeItem(at: temp) }
@@ -145,14 +145,14 @@ final class ArchiveEngine: @unchecked Sendable {
         _ = try await run(args, directory: parent, password: password.isEmpty ? nil : password)
         try Task.checkCancellation()
         try FileManager.default.moveItem(at: temp, to: target)
-        return "Archiv erfolgreich erstellt.\n\(target.path)"
+        return L10n.format("Archive created successfully.\n%@", target.path)
     }
 
     private func extractDirect(_ archive: URL, destination: URL, password: String, selection: [String]) async throws -> String {
         let entries = try await records(archive)
         try validatePaths(entries)
         guard !FileManager.default.fileExists(atPath: destination.path) else {
-            throw ArchiveFailure.message("Zielordner existiert bereits. Bitte neuen Ordnernamen wählen; vorhandene Dateien werden nicht überschrieben.")
+            throw ArchiveFailure.message(L10n.text("The destination folder already exists. Please choose a new folder name; existing files will not be overwritten."))
         }
         let temp = destination.deletingLastPathComponent().appendingPathComponent(".archiv-\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: temp, withIntermediateDirectories: false)
@@ -162,13 +162,13 @@ final class ArchiveEngine: @unchecked Sendable {
         _ = try await run(args, password: password.isEmpty ? nil : password)
         try Task.checkCancellation()
         try FileManager.default.moveItem(at: temp, to: destination)
-        return "Archiv erfolgreich entpackt.\n\(destination.path)"
+        return L10n.format("Archive extracted successfully.\n%@", destination.path)
     }
 
     private func testDirect(_ archive: URL, password: String) async throws -> String {
         let args = ["t", "-bd"]
         _ = try await run(args + ["--", archive.path], password: password.isEmpty ? nil : password)
-        return "Keine Fehler gefunden.\nAlle Archivdaten wurden erfolgreich geprüft."
+        return L10n.text("No errors found.\nAll archive data was tested successfully.")
     }
     private func validatePaths(_ entries: [[String: String]]) throws {
         for item in entries {
@@ -179,7 +179,7 @@ final class ArchiveEngine: @unchecked Sendable {
                   (item["Symbolic Link"] ?? "").isEmpty, (item["Hard Link"] ?? "").isEmpty,
                   item["Mode"]?.hasPrefix("l") != true,
                   !attributes.contains("lrwx") else {
-                throw ArchiveFailure.message("Archiv enthält unsichere Pfade oder Verknüpfungen. Entpacken im Grundprototyp abgelehnt.")
+                throw ArchiveFailure.message(L10n.text("The archive contains unsafe paths or links. Extraction was refused."))
             }
         }
     }

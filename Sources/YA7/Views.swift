@@ -13,15 +13,15 @@ struct BrowserView: View {
     var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
             List(selection: $sidebar) {
-                Section("Favoriten") {
-                    sidebarRow("Benutzerordner", "house", "Benutzerordner")
-                    sidebarRow("Schreibtisch", "desktopcomputer", "Schreibtisch")
-                    sidebarRow("Dokumente", "doc", "Dokumente")
+                Section(L10n.text("Favorites")) {
+                    sidebarRow(L10n.text("Home"), "house", L10n.text("Home"))
+                    sidebarRow(L10n.text("Desktop"), "desktopcomputer", L10n.text("Desktop"))
+                    sidebarRow(L10n.text("Documents"), "doc", L10n.text("Documents"))
                     sidebarRow("Downloads", "arrow.down.circle", "Downloads")
                 }
                 if model.demo {
-                    Section("Zuletzt geöffnet") {
-                        sidebarRow("Projekt Atlas.7z", "doc.zipper", "Atlas")
+                    Section(L10n.text("Recently opened")) {
+                        sidebarRow("Project Atlas.7z", "doc.zipper", "Atlas")
                         sidebarRow("Website-Assets.zip", "doc.zipper", "Assets")
                     }
                 }
@@ -43,12 +43,12 @@ struct BrowserView: View {
             .onChange(of: sidebar) { _, value in
                 if model.demo {
                     if value == "Atlas" || value == "Assets" {
-                        model.archiveURL = URL(fileURLWithPath: "/Beispiele/" + (value == "Atlas" ? "Projekt Atlas.7z" : "Website-Assets.zip"))
+                        model.archiveURL = URL(fileURLWithPath: "/Examples/" + (value == "Atlas" ? "Project Atlas.7z" : "Website-Assets.zip"))
                         model.entries = BrowserEntry.archiveSamples; model.selection = []
                     } else { model.archiveURL = nil; model.entries = BrowserEntry.samples; model.selection = [] }
                 } else {
                     let home = FileManager.default.homeDirectoryForCurrentUser
-                    let paths = ["Benutzerordner": "", "Schreibtisch": "Desktop", "Dokumente": "Documents", "Downloads": "Downloads"]
+                    let paths = [L10n.text("Home"): "", L10n.text("Desktop"): "Desktop", L10n.text("Documents"): "Documents", "Downloads": "Downloads"]
                     model.browse(home.appendingPathComponent(paths[value] ?? ""))
                 }
             }
@@ -57,18 +57,18 @@ struct BrowserView: View {
                 pathBar
                 Divider()
                 if model.busy && model.dialog != .progress {
-                    ProgressView("Archiv wird gelesen …").frame(maxWidth: .infinity, maxHeight: .infinity)
+                    ProgressView(L10n.text("Reading archive…")).frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else if model.filtered.isEmpty {
                     ContentUnavailableView {
-                        Label(model.search.isEmpty ? (model.archiveURL == nil ? "Dieser Ordner ist leer" : "Dieses Archiv ist leer") : "Keine Suchtreffer",
+                        Label(model.search.isEmpty ? (model.archiveURL == nil ? L10n.text("This folder is empty") : L10n.text("This archive is empty")) : L10n.text("No search results"),
                               systemImage: model.search.isEmpty ? (model.archiveURL == nil ? "folder" : "archivebox") : "magnifyingglass")
                     } description: {
-                        Text(model.search.isEmpty ? "Öffne einen anderen Ordner oder ein Archiv." : "Versuche einen anderen Suchbegriff oder lösche den Filter.")
+                        Text(model.search.isEmpty ? L10n.text("Open another folder or an archive.") : L10n.text("Try another search term or clear the filter."))
                     } actions: {
                         if model.search.isEmpty {
-                            Button("Ordner öffnen …", systemImage: "folder", action: model.chooseFolder)
+                            Button(L10n.text("Open folder…"), systemImage: "folder", action: model.chooseFolder)
                         } else {
-                            Button("Suche löschen", systemImage: "xmark.circle") { model.search = "" }
+                            Button(L10n.text("Clear search"), systemImage: "xmark.circle") { model.search = "" }
                         }
                     }.frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
@@ -82,38 +82,38 @@ struct BrowserView: View {
                 ToolbarItemGroup(placement: .navigation) {
                     Button {
                         withAnimation { columnVisibility = columnVisibility == .detailOnly ? .all : .detailOnly }
-                    } label: { Label("Seitenleiste", systemImage: "sidebar.left") }
-                        .help("Seitenleiste ein- oder ausblenden")
+                    } label: { Label(L10n.text("Sidebar"), systemImage: "sidebar.left") }
+                        .help(L10n.text("Show or hide sidebar"))
                     Button(action: model.back) { Image(systemName: "chevron.left") }
-                        .accessibilityLabel("Zurück")
-                        .help("Zurück").disabled(model.history.isEmpty)
+                        .accessibilityLabel(L10n.text("Back"))
+                        .help(L10n.text("Back")).disabled(model.history.isEmpty)
                     Button(action: model.forward) { Image(systemName: "chevron.right") }
-                        .accessibilityLabel("Vorwärts")
-                        .help("Vorwärts").disabled(model.forwardHistory.isEmpty)
+                        .accessibilityLabel(L10n.text("Forward"))
+                        .help(L10n.text("Forward")).disabled(model.forwardHistory.isEmpty)
                 }
                 ToolbarItem {
-                    Button { model.dialog = .pack } label: { Label("Packen", systemImage: "archivebox") }
+                    Button { model.dialog = .pack } label: { Label(L10n.text("Compress"), systemImage: "archivebox") }
                         .disabled(model.selection.isEmpty || model.archiveURL != nil || model.busy)
                 }
                 ToolbarItem {
-                    Button { model.dialog = .extract } label: { Label("Entpacken", systemImage: "folder.badge.plus") }
+                    Button { model.dialog = .extract } label: { Label(L10n.text("Extract"), systemImage: "folder.badge.plus") }
                         .disabled(!model.canExtract || model.busy)
                 }
                 ToolbarItem {
-                    Button { model.dialog = .check } label: { Label("Prüfen", systemImage: "checkmark.shield") }
+                    Button { model.dialog = .check } label: { Label(L10n.text("Test"), systemImage: "checkmark.shield") }
                         .disabled(!model.canExtract || model.busy)
                 }
                 ToolbarItem {
                     Menu {
-                        Button("Archiv öffnen …", systemImage: "doc.zipper", action: model.chooseArchive).keyboardShortcut("o")
-                        Button("Ordner öffnen …", systemImage: "folder", action: model.chooseFolder).keyboardShortcut("o", modifiers: [.command, .shift])
+                        Button(L10n.text("Open archive…"), systemImage: "doc.zipper", action: model.chooseArchive).keyboardShortcut("o")
+                        Button(L10n.text("Open folder…"), systemImage: "folder", action: model.chooseFolder).keyboardShortcut("o", modifiers: [.command, .shift])
                         Divider()
-                        Button("Einstellungen …", systemImage: "gearshape") { model.dialog = .settings }
-                    } label: { Label("Öffnen", systemImage: "folder") }.help("Archiv oder Ordner öffnen")
+                        Button(L10n.text("Settings…"), systemImage: "gearshape") { model.dialog = .settings }
+                    } label: { Label(L10n.text("Open"), systemImage: "folder") }.help(L10n.text("Open an archive or folder"))
                 }
                 ToolbarItem {
                     Button { inspector.toggle() } label: { Label("Info", systemImage: "info.circle") }
-                        .help("Informationen einblenden")
+                        .help(L10n.text("Show information"))
                 }
             }
         }
@@ -133,7 +133,7 @@ struct BrowserView: View {
             case .info: InfoView(model: model)
             }
         }
-        .alert("Hinweis", isPresented: Binding(get: { model.error != nil }, set: { if !$0 { model.error = nil } })) {
+        .alert(L10n.text("Notice"), isPresented: Binding(get: { model.error != nil }, set: { if !$0 { model.error = nil } })) {
             Button("OK") { model.error = nil }
         } message: { Text(model.error ?? "") }
         .background {
@@ -150,11 +150,11 @@ struct BrowserView: View {
 
     private var pathBar: some View {
         HStack(spacing: 10) {
-            Button(action: model.parent) { Label("Übergeordneter Ordner", systemImage: "arrow.up") }
+            Button(action: model.parent) { Label(L10n.text("Parent folder"), systemImage: "arrow.up") }
                 .labelStyle(.iconOnly)
-                .buttonStyle(.borderless).help("Übergeordneter Ordner")
+                .buttonStyle(.borderless).help(L10n.text("Parent folder"))
             if editingPath {
-                TextField("Ordnerpfad", text: $path).textFieldStyle(.roundedBorder)
+                TextField(L10n.text("Folder path"), text: $path).textFieldStyle(.roundedBorder)
                     .onSubmit { model.browse(URL(fileURLWithPath: path)); editingPath = false }
                     .onExitCommand { editingPath = false }
             } else {
@@ -175,11 +175,11 @@ struct BrowserView: View {
             }
             HStack(spacing: 5) {
                 Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
-                TextField("Hier suchen", text: $model.search).textFieldStyle(.plain)
-                    .accessibilityLabel("Aktuellen Ordner durchsuchen")
+                TextField(L10n.text("Search here"), text: $model.search).textFieldStyle(.plain)
+                    .accessibilityLabel(L10n.text("Search current folder"))
                 if !model.search.isEmpty {
                     Button { model.search = "" } label: { Image(systemName: "xmark.circle.fill") }
-                        .buttonStyle(.plain).accessibilityLabel("Suche löschen")
+                        .buttonStyle(.plain).accessibilityLabel(L10n.text("Clear search"))
                 }
             }
             .padding(.horizontal, 8).padding(.vertical, 5)
@@ -190,29 +190,29 @@ struct BrowserView: View {
 
     private var fileTable: some View {
         Table(model.filtered.sorted(using: sortOrder), selection: $model.selection, sortOrder: $sortOrder) {
-            TableColumn("Name", value: \.name) { entry in
+            TableColumn(L10n.text("Name"), value: \.name) { entry in
                 HStack(spacing: 9) {
                     DocumentIcon(name: entry.name, isFolder: entry.folder, size: 17)
                     Text(entry.name).lineLimit(1).truncationMode(.middle)
                 }.padding(.vertical, 4)
             }.width(min: 180, ideal: 350)
-            TableColumn("Größe", value: \.size) { entry in
+            TableColumn(L10n.text("Size"), value: \.size) { entry in
                 Text(entry.sizeLabel).monospacedDigit().foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .trailing)
             }.width(80)
-            TableColumn("Art", value: \.kind).width(min: 85, ideal: 125)
-            TableColumn("Geändert", value: \.modified).width(min: 125, ideal: 145)
+            TableColumn(L10n.text("Kind"), value: \.kind).width(min: 85, ideal: 125)
+            TableColumn(L10n.text("Modified"), value: \.modified).width(min: 125, ideal: 145)
         }
         .contextMenu(forSelectionType: String.self) { ids in
-            Button("Öffnen", systemImage: "arrow.up.forward.square") { if let entry = model.entries.first(where: { ids.contains($0.id) }) { model.open(entry) } }
+            Button(L10n.text("Open"), systemImage: "arrow.up.forward.square") { if let entry = model.entries.first(where: { ids.contains($0.id) }) { model.open(entry) } }
             Divider()
-            Button("Packen …", systemImage: "archivebox") { model.dialog = .pack }.disabled(model.archiveURL != nil)
-            Button("Entpacken …", systemImage: "folder.badge.plus") { model.dialog = .extract }.disabled(!model.canExtract)
-            Button("Prüfen …", systemImage: "checkmark.shield") { model.dialog = .check }.disabled(!model.canExtract)
+            Button(L10n.text("Compress…"), systemImage: "archivebox") { model.dialog = .pack }.disabled(model.archiveURL != nil)
+            Button(L10n.text("Extract…"), systemImage: "folder.badge.plus") { model.dialog = .extract }.disabled(!model.canExtract)
+            Button(L10n.text("Test…"), systemImage: "checkmark.shield") { model.dialog = .check }.disabled(!model.canExtract)
             Divider()
-            Button("Informationen", systemImage: "info.circle") { inspector = true }
+            Button(L10n.text("Information"), systemImage: "info.circle") { inspector = true }
             if let url = model.selected.first?.url {
-                Button("Im Finder zeigen", systemImage: "folder") { NSWorkspace.shared.activateFileViewerSelecting([url]) }
+                Button(L10n.text("Show in Finder"), systemImage: "folder") { NSWorkspace.shared.activateFileViewerSelecting([url]) }
             }
         } primaryAction: { ids in
             if let entry = model.entries.first(where: { ids.contains($0.id) }) { model.open(entry) }
@@ -222,20 +222,20 @@ struct BrowserView: View {
     private var footer: some View {
         HStack(spacing: 9) {
             if model.archiveURL != nil {
-                Label("Archiv", systemImage: "doc.zipper").foregroundStyle(.secondary)
+                Label(L10n.text("Archive"), systemImage: "doc.zipper").foregroundStyle(.secondary)
                 Text("·").foregroundStyle(.tertiary)
             }
-            Text("\(model.filtered.count) Objekte")
+            Text(L10n.itemCount(model.filtered.count))
             if !model.selection.isEmpty {
                 Text("·").foregroundStyle(.tertiary)
-                Text("\(model.selection.count) ausgewählt")
+                Text(L10n.format("%@ selected", model.selection.count))
                 if model.selected.contains(where: { !$0.folder }) {
                     Text("·").foregroundStyle(.tertiary)
                     Text(ByteCountFormatter.string(fromByteCount: model.selected.filter { !$0.folder }.reduce(0) { $0 + $1.size }, countStyle: .file)).monospacedDigit()
                 }
             }
             Spacer()
-            if model.demo { Text("Beispieldaten").foregroundStyle(.tertiary) }
+            if model.demo { Text(L10n.text("Sample data")).foregroundStyle(.tertiary) }
         }.font(.system(size: 11)).foregroundStyle(.secondary)
             .padding(.horizontal, 16).frame(height: 31)
     }
@@ -244,7 +244,7 @@ struct BrowserView: View {
 struct PackView: View {
     @Bindable var model: BrowserModel
     @Environment(\.dismiss) private var dismiss
-    @State private var name = "Projekt Atlas"
+    @State private var name = "Project Atlas"
     @State private var format = "7z"
     @State private var level = "5"
     @State private var password = ""
@@ -252,40 +252,40 @@ struct PackView: View {
     @State private var path = ""
     var preview = false
     var encryptedPreview = false
-    var sourceLabel: String { model.demo && preview ? "3 Ordner · 5 Dateien" : "\(model.selected.count) ausgewählte Objekte" }
+    var sourceLabel: String { model.demo && preview ? L10n.text("3 folders · 5 files") : L10n.selectedItemCount(model.selected.count) }
     private var invalidZIPPassword: Bool {
         format == "zip" && !password.unicodeScalars.allSatisfy { $0.value >= 32 && $0.value <= 126 }
     }
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            DialogHeader(title: "Archiv erstellen", subtitle: sourceLabel, symbol: "archivebox")
+            DialogHeader(title: L10n.text("Create archive"), subtitle: sourceLabel, symbol: "archivebox")
             DialogCard {
-                DialogRow(title: "Name", symbol: "doc") {
+                DialogRow(title: L10n.text("Name"), symbol: "doc") {
                     HStack(spacing: 7) {
-                        TextField("Archivname", text: $name).textFieldStyle(.roundedBorder).labelsHidden()
-                            .accessibilityLabel("Archivname")
+                        TextField(L10n.text("Archive name"), text: $name).textFieldStyle(.roundedBorder).labelsHidden()
+                            .accessibilityLabel(L10n.text("Archive name"))
                         Text(".\(format)").foregroundStyle(.secondary).frame(width: 65, alignment: .leading)
                     }
                 }
-                DialogRow(title: "Sichern unter", symbol: "folder") { FolderPickerRow(path: $path) }
+                DialogRow(title: L10n.text("Save to"), symbol: "folder") { FolderPickerRow(path: $path) }
                 Divider()
-                DialogRow(title: "Format", symbol: "archivebox") {
+                DialogRow(title: L10n.text("Format"), symbol: "archivebox") {
                     ArchiveFormatPicker(selection: $format)
                 }
                 if ArchiveFormat.named(format).supportsCompression {
-                DialogRow(title: "Kompression", symbol: "slider.horizontal.3") {
-                    Picker("Kompression", selection: $level) {
-                        Text("Schnell").tag("1"); Text("Normal").tag("5"); Text("Maximum").tag("9")
+                DialogRow(title: L10n.text("Compression"), symbol: "slider.horizontal.3") {
+                    Picker(L10n.text("Compression"), selection: $level) {
+                        Text(L10n.text("Fast")).tag("1"); Text(L10n.text("Normal")).tag("5"); Text(L10n.text("Maximum")).tag("9")
                     }.labelsHidden()
                 }
                 }
                 if ArchiveFormat.named(format).supportsPassword {
                 Divider()
-                DialogRow(title: "Passwort", symbol: "lock") { PasswordField(password: $password) }
+                DialogRow(title: L10n.text("Password"), symbol: "lock") { PasswordField(password: $password) }
                 if !password.isEmpty {
-                    DialogRow(title: "Bestätigen", symbol: "checkmark.shield") {
-                        SecureField("Passwort wiederholen", text: $confirmation).textFieldStyle(.roundedBorder).labelsHidden()
-                            .accessibilityLabel("Passwort bestätigen")
+                    DialogRow(title: L10n.text("Confirm"), symbol: "checkmark.shield") {
+                        SecureField(L10n.text("Repeat password"), text: $confirmation).textFieldStyle(.roundedBorder).labelsHidden()
+                            .accessibilityLabel(L10n.text("Confirm password"))
                     }
                 }
             }
@@ -295,9 +295,9 @@ struct PackView: View {
             Spacer(minLength: 0)
             Divider()
             HStack(spacing: 8) {
-                DialogNote(text: "Originale bleiben erhalten.", symbol: "checkmark.shield")
-                Button("Abbrechen") { dismiss() }.keyboardShortcut(.cancelAction)
-                Button(action: create) { Label("Erstellen", systemImage: "archivebox") }
+                DialogNote(text: L10n.text("Originals are preserved."), symbol: "checkmark.shield")
+                Button(L10n.text("Cancel")) { dismiss() }.keyboardShortcut(.cancelAction)
+                Button(action: create) { Label(L10n.text("Create"), systemImage: "archivebox") }
                     .buttonStyle(.borderedProminent).keyboardShortcut(.defaultAction)
                     .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty || name.contains("/") || path.isEmpty || invalidZIPPassword || (!password.isEmpty && password != confirmation))
             }
@@ -305,28 +305,28 @@ struct PackView: View {
             .background(Color(nsColor: .windowBackgroundColor))
             .onChange(of: format) { password = ""; confirmation = "" }
             .onAppear {
-                path = model.demo ? "/Beispiele/Downloads" : model.location?.path ?? FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Downloads").path
+                path = model.demo ? "/Examples/Downloads" : model.location?.path ?? FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Downloads").path
                 format = UserDefaults.standard.string(forKey: "defaultFormat") ?? "7z"
                 level = UserDefaults.standard.string(forKey: "defaultCompression") ?? "5"
-                if encryptedPreview { password = "Beispielpasswort"; confirmation = "Beispielpasswort" }
+                if encryptedPreview { password = L10n.text("ExamplePassword"); confirmation = L10n.text("ExamplePassword") }
                 if !model.demo, let entry = model.selected.first { name = (entry.name as NSString).deletingPathExtension }
             }
     }
     private var confirmationMismatch: Bool { !confirmation.isEmpty && password != confirmation }
     private var passwordNote: String {
-        if !ArchiveFormat.named(format).supportsPassword { return "TAR-Archive werden ohne Passwort erstellt." }
-        if invalidZIPPassword { return "ZIP-Passwort: nur ASCII-Zeichen. Für Umlaute bitte 7z wählen." }
-        if confirmationMismatch { return "Die Passwörter stimmen noch nicht überein." }
-        return password.isEmpty ? "Passwort optional. Ohne Passwort kann jeder das Archiv öffnen." : "AES-256-Verschlüsselung. Passwort sicher aufbewahren."
+        if !ArchiveFormat.named(format).supportsPassword { return L10n.text("TAR archives are created without a password.") }
+        if invalidZIPPassword { return L10n.text("ZIP password: printable ASCII only. Use 7z for Unicode characters.") }
+        if confirmationMismatch { return L10n.text("The passwords do not match yet.") }
+        return password.isEmpty ? L10n.text("Password optional. Anyone can open the archive without a password.") : L10n.text("AES-256 encryption. Keep the password safe.")
     }
     private func create() {
-        if model.demo { model.error = "Beispieldaten können nicht gepackt werden. Bitte zuerst eigenen Ordner öffnen."; dismiss(); return }
+        if model.demo { model.error = L10n.text("Sample data cannot be compressed. Open your own folder first."); dismiss(); return }
         let sources = model.selected.compactMap(\.url)
         let target = URL(fileURLWithPath: path).appendingPathComponent(name + "." + format)
         let engine = model.engine, selectedFormat = format, selectedLevel = level, secret = password
         dismiss()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-            model.perform(title: "Archiv wird erstellt") {
+            model.perform(title: L10n.text("Creating archive")) {
                 try await engine.create(sources: sources, target: target, format: selectedFormat, level: selectedLevel, password: secret)
             }
         }
@@ -337,55 +337,55 @@ struct ExtractView: View {
     @Bindable var model: BrowserModel
     @Environment(\.dismiss) private var dismiss
     @State private var path = ""
-    @State private var folderName = "Projekt Atlas"
+    @State private var folderName = "Project Atlas"
     @State private var onlySelected = false
     @State private var password = ""
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            DialogHeader(title: "Archiv entpacken", subtitle: model.currentArchive?.lastPathComponent ?? "Projekt Atlas.7z", symbol: "folder.badge.plus")
+            DialogHeader(title: L10n.text("Extract archive"), subtitle: model.currentArchive?.lastPathComponent ?? "Project Atlas.7z", symbol: "folder.badge.plus")
             DialogCard {
-                DialogRow(title: "Zielordner", symbol: "folder") { FolderPickerRow(path: $path) }
-                DialogRow(title: "Unterordner", symbol: "folder.badge.plus") {
-                    TextField("Ordnername", text: $folderName).textFieldStyle(.roundedBorder).labelsHidden()
-                        .accessibilityLabel("Name des neuen Unterordners")
+                DialogRow(title: L10n.text("Destination folder"), symbol: "folder") { FolderPickerRow(path: $path) }
+                DialogRow(title: L10n.text("Subfolder"), symbol: "folder.badge.plus") {
+                    TextField(L10n.text("Folder name"), text: $folderName).textFieldStyle(.roundedBorder).labelsHidden()
+                        .accessibilityLabel(L10n.text("Name of the new subfolder"))
                 }
                 Divider()
-                DialogRow(title: "Auswahl", symbol: "checklist") {
-                    Picker("Entpacken", selection: $onlySelected) {
-                        Text("Gesamtes Archiv").tag(false)
-                        Text("Ausgewählte Einträge").tag(true)
+                DialogRow(title: L10n.text("Selection"), symbol: "checklist") {
+                    Picker(L10n.text("Extract"), selection: $onlySelected) {
+                        Text(L10n.text("Entire archive")).tag(false)
+                        Text(L10n.text("Selected entries")).tag(true)
                     }.labelsHidden().disabled(model.archiveURL == nil || model.selection.isEmpty)
                 }
-                DialogRow(title: "Passwort", symbol: "lock") { PasswordField(password: $password) }
+                DialogRow(title: L10n.text("Password"), symbol: "lock") { PasswordField(password: $password) }
             }
-            DialogNote(text: "Entpackt in einen neuen Unterordner. Vorhandene Dateien bleiben erhalten.", symbol: "checkmark.shield")
+            DialogNote(text: L10n.text("Extracts into a new subfolder. Existing files are preserved."), symbol: "checkmark.shield")
             Spacer(minLength: 0)
             Divider()
             HStack(spacing: 8) {
-                Label(folderName.isEmpty ? "Neuer Unterordner" : folderName, systemImage: "folder.badge.plus")
+                Label(folderName.isEmpty ? L10n.text("New subfolder") : folderName, systemImage: "folder.badge.plus")
                     .font(.system(size: 11)).foregroundStyle(.secondary).lineLimit(1).truncationMode(.middle)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                Button("Abbrechen") { dismiss() }.keyboardShortcut(.cancelAction)
-                Button(action: extract) { Label("Entpacken", systemImage: "folder.badge.plus") }
+                Button(L10n.text("Cancel")) { dismiss() }.keyboardShortcut(.cancelAction)
+                Button(action: extract) { Label(L10n.text("Extract"), systemImage: "folder.badge.plus") }
                     .buttonStyle(.borderedProminent).keyboardShortcut(.defaultAction)
                     .disabled(path.isEmpty || folderName.isEmpty || folderName.contains("/") || [".", ".."].contains(folderName))
             }
         }.padding(24).frame(width: 568, height: 430)
             .background(Color(nsColor: .windowBackgroundColor))
             .onAppear {
-                path = model.demo ? "/Beispiele/Downloads" : model.currentArchive?.deletingLastPathComponent().path ?? ""
+                path = model.demo ? "/Examples/Downloads" : model.currentArchive?.deletingLastPathComponent().path ?? ""
                 if let url = model.currentArchive { folderName = url.deletingPathExtension().lastPathComponent }
             }
     }
     private func extract() {
-        if model.demo { model.error = "Beispieldaten können nicht entpackt werden. Bitte zuerst ein eigenes Archiv öffnen."; dismiss(); return }
+        if model.demo { model.error = L10n.text("Sample data cannot be extracted. Open your own archive first."); dismiss(); return }
         guard let archive = model.currentArchive else { return }
         let destination = URL(fileURLWithPath: path).appendingPathComponent(folderName)
         let entries = onlySelected ? Array(model.selection) : []
         let engine = model.engine, secret = password
         dismiss()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-            model.perform(title: "Archiv wird entpackt") { try await engine.extract(archive, destination: destination, password: secret, selection: entries) }
+            model.perform(title: L10n.text("Extracting archive")) { try await engine.extract(archive, destination: destination, password: secret, selection: entries) }
         }
     }
 }
@@ -397,25 +397,25 @@ struct CheckView: View {
     var quickAction = false
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            DialogHeader(title: "Archiv prüfen", subtitle: quickAction ? "Integrität prüfen · Ansicht mit Beispieldaten" : "Integrität des Archivs überprüfen", symbol: "checkmark.shield")
+            DialogHeader(title: L10n.text("Test archive"), subtitle: quickAction ? L10n.text("Test integrity · sample view") : L10n.text("Test archive integrity"), symbol: "checkmark.shield")
             DialogCard {
-                ArchiveSummary(name: model.currentArchive?.lastPathComponent ?? "Projekt Atlas.7z",
-                               detail: model.demo ? "7z-Archiv · 18,4 MB" : "Alle Archivdaten werden geprüft.")
+                ArchiveSummary(name: model.currentArchive?.lastPathComponent ?? "Project Atlas.7z",
+                               detail: model.demo ? L10n.text("7z archive · 18.4 MB") : L10n.text("All archive data will be tested."))
                 Divider()
-                DialogRow(title: "Passwort", symbol: "lock") { PasswordField(password: $password) }
+                DialogRow(title: L10n.text("Password"), symbol: "lock") { PasswordField(password: $password) }
             }
-            DialogNote(text: "Prüft, ob Dateien vollständig und unbeschädigt sind. Es werden keine Dateien entpackt oder verändert.", symbol: "checkmark.shield")
+            DialogNote(text: L10n.text("Tests whether files are complete and undamaged. No files are extracted or modified."), symbol: "checkmark.shield")
             Divider()
             HStack {
                 Spacer()
-                Button("Abbrechen") { dismiss() }.keyboardShortcut(.cancelAction)
-                Button("Prüfen", systemImage: "checkmark.shield") {
-                    if model.demo { dismiss(); model.error = "Beispieldaten. Zum Prüfen bitte eigenes Archiv öffnen."; return }
+                Button(L10n.text("Cancel")) { dismiss() }.keyboardShortcut(.cancelAction)
+                Button(L10n.text("Test"), systemImage: "checkmark.shield") {
+                    if model.demo { dismiss(); model.error = L10n.text("Sample data. Open your own archive to test it."); return }
                     guard let archive = model.currentArchive else { return }
                     let engine = model.engine, secret = password
                     dismiss()
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                        model.perform(title: "Archiv wird geprüft") { try await engine.test(archive, password: secret) }
+                        model.perform(title: L10n.text("Testing archive")) { try await engine.test(archive, password: secret) }
                     }
                 }.buttonStyle(.borderedProminent).keyboardShortcut(.defaultAction)
             }
@@ -430,18 +430,18 @@ struct JobView: View {
     var preview = false
     var body: some View {
         VStack(alignment: .leading, spacing: 23) {
-            DialogHeader(title: model.result == nil ? (preview ? "Archiv wird entpackt" : model.taskTitle) : (model.failed ? "Auftrag nicht abgeschlossen" : "Auftrag abgeschlossen"),
-                subtitle: preview ? "Projekt Atlas.7z → Downloads/Projekt Atlas" : model.taskDetails,
+            DialogHeader(title: model.result == nil ? (preview ? L10n.text("Extracting archive") : model.taskTitle) : (model.failed ? L10n.text("Operation not completed") : L10n.text("Operation completed")),
+                subtitle: preview ? "Project Atlas.7z → Downloads/Project Atlas" : model.taskDetails,
                 symbol: model.result == nil ? "folder.badge.plus" : (model.failed ? "exclamationmark.triangle" : "checkmark.circle"))
             if preview {
                 VStack(spacing: 9) {
-                    HStack { Text("Bilder / Titelbild.png").lineLimit(1); Spacer(); Text("64 %").monospacedDigit() }
-                    ProgressView(value: 0.64).accessibilityLabel("Fortschritt: 64 Prozent")
-                    HStack { Text("12 von 18 Dateien"); Spacer(); Text("30,8 MB von 48,2 MB") }
+                    HStack { Text(L10n.text("Pictures / Cover.png")).lineLimit(1); Spacer(); Text("64 %").monospacedDigit() }
+                    ProgressView(value: 0.64).accessibilityLabel(L10n.text("Progress: 64 percent"))
+                    HStack { Text(L10n.text("12 of 18 files")); Spacer(); Text(L10n.text("30.8 MB of 48.2 MB")) }
                         .font(.system(size: 11)).foregroundStyle(.secondary)
                 }
             } else if model.result == nil {
-                HStack { ProgressView().controlSize(.small); Text("7-Zip arbeitet …").foregroundStyle(.secondary) }
+                HStack { ProgressView().controlSize(.small); Text(L10n.text("7-Zip is working…")).foregroundStyle(.secondary) }
             } else {
                 ScrollView {
                     Text(model.result ?? "").font(.system(size: 12)).textSelection(.enabled)
@@ -449,13 +449,13 @@ struct JobView: View {
                 }.frame(maxHeight: 180)
             }
             DisclosureGroup("Details", isExpanded: $details) {
-                Text(preview ? "7-Zip 26.05 · Entpacken\nBeispieldaten für die Oberflächenprüfung." : model.taskDetails)
+                Text(preview ? L10n.text("7-Zip 26.05 · Extracting\nSample data for UI verification.") : model.taskDetails)
                     .font(.system(size: 11, design: .monospaced)).textSelection(.enabled).padding(.top, 6)
             }.font(.system(size: 11)).foregroundStyle(.secondary)
             Divider()
             HStack {
                 Spacer()
-                Button(model.result == nil ? "Abbrechen" : "Schließen") {
+                Button(model.result == nil ? L10n.text("Cancel") : L10n.text("Close")) {
                     if model.busy { model.cancel() }
                     dismiss()
                 }.keyboardShortcut(.cancelAction)
@@ -470,7 +470,7 @@ struct InfoView: View {
     var body: some View {
         Group {
             if selected.isEmpty {
-                ContentUnavailableView("Keine Auswahl", systemImage: "cursorarrow", description: Text("Wähle eine Datei oder einen Ordner, um Informationen anzuzeigen."))
+                ContentUnavailableView(L10n.text("No selection"), systemImage: "cursorarrow", description: Text(L10n.text("Select a file or folder to see its information.")))
             } else {
                 VStack(alignment: .leading, spacing: 18) {
                     VStack(spacing: 10) {
@@ -479,26 +479,26 @@ struct InfoView: View {
                         } else {
                             Image(systemName: "doc.on.doc").font(.system(size: 42)).foregroundStyle(.secondary).accessibilityHidden(true)
                         }
-                        Text(selected.count == 1 ? selected[0].name : "\(selected.count) Objekte")
+                        Text(selected.count == 1 ? selected[0].name : L10n.itemCount(selected.count))
                             .font(.headline).multilineTextAlignment(.center).textSelection(.enabled)
                     }.frame(maxWidth: .infinity).padding(.vertical, 8)
                     Divider()
                     Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 12) {
                         if selected.count == 1, let first = selected.first {
-                            infoRow("Art", first.kind)
-                            infoRow("Größe", first.sizeLabel)
-                            infoRow("Geändert", first.modified)
+                            infoRow(L10n.text("Kind"), first.kind)
+                            infoRow(L10n.text("Size"), first.sizeLabel)
+                            infoRow(L10n.text("Modified"), first.modified)
                         } else {
-                            infoRow("Dateien", "\(selected.filter { !$0.folder }.count)")
-                            infoRow("Ordner", "\(selected.filter(\.folder).count)")
-                            infoRow("Dateigröße", ByteCountFormatter.string(fromByteCount: selected.filter { !$0.folder }.reduce(0) { $0 + $1.size }, countStyle: .file))
+                            infoRow(L10n.text("Files"), "\(selected.filter { !$0.folder }.count)")
+                            infoRow(L10n.text("Folders"), "\(selected.filter(\.folder).count)")
+                            infoRow(L10n.text("File size"), ByteCountFormatter.string(fromByteCount: selected.filter { !$0.folder }.reduce(0) { $0 + $1.size }, countStyle: .file))
                         }
                     }
                     if selected.count == 1, let url = selected.first?.url {
                         Divider()
                         Text(url.deletingLastPathComponent().path).font(.system(size: 11)).foregroundStyle(.secondary)
                             .lineLimit(4).truncationMode(.middle).textSelection(.enabled)
-                        Button("Im Finder zeigen", systemImage: "folder") { NSWorkspace.shared.activateFileViewerSelecting([url]) }
+                        Button(L10n.text("Show in Finder"), systemImage: "folder") { NSWorkspace.shared.activateFileViewerSelecting([url]) }
                     }
                     Spacer(minLength: 0)
                 }.font(.system(size: 12)).padding(20)
@@ -519,36 +519,36 @@ struct PreferencesView: View {
     @AppStorage("defaultCompression") private var level = "5"
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            DialogHeader(title: "YA7 · Einstellungen", subtitle: "Yet Another 7-Zip GUI for macOS", symbol: "gearshape")
+            DialogHeader(title: L10n.text("YA7 · Settings"), subtitle: "Yet Another 7-Zip GUI for macOS", symbol: "gearshape")
             DialogCard {
-                DialogRow(title: "Format", symbol: "archivebox") {
+                DialogRow(title: L10n.text("Format"), symbol: "archivebox") {
                     ArchiveFormatPicker(selection: $format)
                 }
                 if ArchiveFormat.named(format).supportsCompression {
-                DialogRow(title: "Kompression", symbol: "slider.horizontal.3") {
-                    Picker("Kompression", selection: $level) {
-                        Text("Schnell").tag("1"); Text("Normal").tag("5"); Text("Maximum").tag("9")
+                DialogRow(title: L10n.text("Compression"), symbol: "slider.horizontal.3") {
+                    Picker(L10n.text("Compression"), selection: $level) {
+                        Text(L10n.text("Fast")).tag("1"); Text(L10n.text("Normal")).tag("5"); Text(L10n.text("Maximum")).tag("9")
                     }.labelsHidden()
                 }
             }
             }
             DialogCard {
-                Label("Finder-Schnellaktionen", systemImage: "cursorarrow.click.2")
+                Label(L10n.text("Finder Quick Actions"), systemImage: "cursorarrow.click.2")
                     .font(.system(size: 13, weight: .semibold))
-                Text("YA7: Packen, Entpacken und Prüfen — direkt im Rechtsklick-Menü unter „Schnellaktionen“.")
+                Text(L10n.text("YA7: Compress, Extract and Test — in the right-click menu under Quick Actions."))
                     .font(.system(size: 12)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
-                Button("Erweiterungen verwalten …", systemImage: "gearshape") {
+                Button(L10n.text("Manage extensions…"), systemImage: "gearshape") {
                     NSWorkspace.shared.open(URL(fileURLWithPath: "/System/Applications/System Settings.app"))
                 }
-                Text("Finder → Rechtsklick → Schnellaktionen → Anpassen …")
+                Text(L10n.text("Finder → Right-click → Quick Actions → Customize…"))
                     .font(.system(size: 11)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             }
             DialogCard { SevenZipUpdateSettings() }
             Spacer(minLength: 0)
             Divider()
             HStack {
-                DialogNote(text: "7-Zip ist in der App enthalten.", symbol: "shippingbox")
-                Button("Schließen") { dismiss() }.keyboardShortcut(.cancelAction)
+                DialogNote(text: L10n.text("7-Zip is included in the app."), symbol: "shippingbox")
+                Button(L10n.text("Close")) { dismiss() }.keyboardShortcut(.cancelAction)
             }
         }.padding(24).frame(width: 540, height: 650)
             .background(Color(nsColor: .windowBackgroundColor))

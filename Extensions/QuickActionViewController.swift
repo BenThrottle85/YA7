@@ -11,7 +11,7 @@ final class QuickActionSession {
     var phase: Phase = .loading
     var inputs: [URL] = []
     var destination: URL?
-    var name = "Archiv"
+    var name = L10n.text("Archive")
     var format = "7z"
     var level = "5"
     var password = ""
@@ -47,7 +47,7 @@ final class QuickActionSession {
                     workingDirectory = temporary
                     destination = temporary
                 }
-                name = urls.count == 1 ? urls[0].deletingPathExtension().lastPathComponent : "Archiv"
+                name = urls.count == 1 ? urls[0].deletingPathExtension().lastPathComponent : L10n.text("Archive")
                 format = UserDefaults.standard.string(forKey: "defaultFormat") ?? "7z"
                 level = UserDefaults.standard.string(forKey: "defaultCompression") ?? "5"
                 phase = .configure
@@ -73,7 +73,7 @@ final class QuickActionSession {
 
     func start() {
         guard canStart else { return }
-        phase = .running; message = "7-Zip arbeitet …"; cancelling = false
+        phase = .running; message = L10n.text("7-Zip is working…"); cancelling = false
         task = Task {
             do {
                 switch action {
@@ -81,13 +81,13 @@ final class QuickActionSession {
                     guard let destination else { return }
                     let target = destination.appendingPathComponent(name + "." + format)
                     _ = try await engine.create(sources: inputs, target: target, format: format, level: level, password: password)
-                    message = "\(target.lastPathComponent) ist bereit.\nMit „Fertig“ legt Finder das Archiv neben der ausgewählten Datei ab."
+                    message = L10n.format("%@ is ready.\nChoose Done to let Finder place the archive next to the selected file.", target.lastPathComponent)
                     output = target
                 case .extract:
                     guard let destination else { return }
                     let target = destination.appendingPathComponent(name)
                     _ = try await engine.extract(inputs[0], destination: target, password: password, selection: [])
-                    message = "Ordner „\(target.lastPathComponent)“ ist bereit.\nMit „Fertig“ legt Finder ihn neben dem Archiv ab."
+                    message = L10n.format("Folder “%@” is ready.\nChoose Done to let Finder place it next to the archive.", target.lastPathComponent)
                     output = target
                 case .check:
                     message = try await engine.test(inputs[0], password: password)
@@ -96,7 +96,7 @@ final class QuickActionSession {
                 logger.notice("Finder action completed: \(self.action.rawValue, privacy: .public)")
             } catch {
                 phase = .failure
-                message = Task.isCancelled ? "Auftrag abgebrochen. Originaldateien bleiben erhalten." : error.localizedDescription
+                message = Task.isCancelled ? L10n.text("Operation cancelled. Original files are preserved.") : error.localizedDescription
                 logger.error("Finder action failed or cancelled: \(self.action.rawValue, privacy: .public)")
             }
             password = ""; confirmation = ""
@@ -190,12 +190,12 @@ struct QuickActionView: View {
     }
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            DialogHeader(title: session.action.title, subtitle: "YA7 · Finder-Schnellaktion", symbol: session.action.symbol)
+            DialogHeader(title: session.action.title, subtitle: L10n.text("YA7 · Finder Quick Action"), symbol: session.action.symbol)
             switch session.phase {
             case .loading:
                 HStack(spacing: 10) {
                     ProgressView().controlSize(.small)
-                    Text("Finder-Auswahl wird geladen …").foregroundStyle(.secondary)
+                    Text(L10n.text("Loading Finder selection…")).foregroundStyle(.secondary)
                 }.padding(.top, 12)
             case .configure:
                 configuration
@@ -203,13 +203,13 @@ struct QuickActionView: View {
                 DialogCard {
                     HStack(spacing: 10) {
                         ProgressView().controlSize(.small)
-                        Text(session.cancelling ? "Auftrag wird abgebrochen …" : "7-Zip arbeitet …")
+                        Text(session.cancelling ? L10n.text("Cancelling operation…") : L10n.text("7-Zip is working…"))
                     }
-                    DialogNote(text: "Originaldateien bleiben erhalten.", symbol: "checkmark.shield")
+                    DialogNote(text: L10n.text("Original files are preserved."), symbol: "checkmark.shield")
                 }
             case .success, .failure:
                 DialogCard {
-                    Label(session.phase == .success ? "Erfolgreich abgeschlossen" : "Auftrag nicht abgeschlossen",
+                    Label(session.phase == .success ? L10n.text("Completed successfully") : L10n.text("Operation not completed"),
                         systemImage: session.phase == .success ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
                         .foregroundStyle(session.phase == .success ? .green : .orange)
                         .font(.headline)
@@ -224,18 +224,18 @@ struct QuickActionView: View {
             Divider()
             HStack(spacing: 8) {
                 if session.phase == .configure {
-                    DialogNote(text: session.action == .check ? "Original bleibt unverändert." : "Originale bleiben erhalten.", symbol: "checkmark.shield")
+                    DialogNote(text: session.action == .check ? L10n.text("The original is unchanged.") : L10n.text("Originals are preserved."), symbol: "checkmark.shield")
                 } else { Spacer(minLength: 0) }
                 if session.phase == .success || session.phase == .failure {
                     if session.phase == .failure, !session.inputs.isEmpty {
-                        Button("Erneut versuchen", systemImage: "arrow.clockwise") { session.phase = .configure }
+                        Button(L10n.text("Try again"), systemImage: "arrow.clockwise") { session.phase = .configure }
                     }
-                    Button("Fertig") { session.close() }.buttonStyle(.borderedProminent).keyboardShortcut(.defaultAction)
+                    Button(L10n.text("Done")) { session.close() }.buttonStyle(.borderedProminent).keyboardShortcut(.defaultAction)
                 } else {
-                    Button("Abbrechen", action: session.cancel).keyboardShortcut(.cancelAction).disabled(session.cancelling)
+                    Button(L10n.text("Cancel"), action: session.cancel).keyboardShortcut(.cancelAction).disabled(session.cancelling)
                     if session.phase == .configure {
                         Button(action: session.start) {
-                            Label(session.action == .pack ? "Erstellen" : session.action == .extract ? "Entpacken" : "Prüfen", systemImage: session.action.symbol)
+                            Label(session.action == .pack ? L10n.text("Create") : session.action == .extract ? L10n.text("Extract") : L10n.text("Test"), systemImage: session.action.symbol)
                         }
                         .buttonStyle(.borderedProminent).keyboardShortcut(.defaultAction).disabled(!session.canStart)
                     }
@@ -251,36 +251,36 @@ struct QuickActionView: View {
     private var configuration: some View {
         VStack(alignment: .leading, spacing: 10) {
             DialogCard(inset: 12, spacing: 10) {
-                ArchiveSummary(name: session.inputs.count == 1 ? session.inputs[0].lastPathComponent : "\(session.inputs.count) ausgewählte Objekte",
-                    detail: session.action == .check ? "Alle Archivdaten werden geprüft." : "Auswahl aus Finder",
+                ArchiveSummary(name: session.inputs.count == 1 ? session.inputs[0].lastPathComponent : L10n.selectedItemCount(session.inputs.count),
+                    detail: session.action == .check ? L10n.text("All archive data will be tested.") : L10n.text("Selection from Finder"),
                     symbol: session.inputs.count == 1 ? (session.inputs[0].hasDirectoryPath ? "folder" : "doc.zipper") : "doc.on.doc")
                 Divider()
                 if session.action != .check {
-                    DialogRow(title: "Ziel", symbol: "folder") {
-                        Text("Neben der ausgewählten Datei").foregroundStyle(.secondary).font(.system(size: 12))
+                    DialogRow(title: L10n.text("Destination"), symbol: "folder") {
+                        Text(L10n.text("Next to the selected file")).foregroundStyle(.secondary).font(.system(size: 12))
                     }
-                    DialogRow(title: session.action == .pack ? "Archivname" : "Unterordner", symbol: session.action == .pack ? "doc" : "folder.badge.plus") {
-                        TextField("Name", text: $session.name).labelsHidden().textFieldStyle(.roundedBorder).accessibilityLabel("Name")
+                    DialogRow(title: session.action == .pack ? L10n.text("Archive name") : L10n.text("Subfolder"), symbol: session.action == .pack ? "doc" : "folder.badge.plus") {
+                        TextField(L10n.text("Name"), text: $session.name).labelsHidden().textFieldStyle(.roundedBorder).accessibilityLabel(L10n.text("Name"))
                     }
                 }
                 if session.action == .pack {
-                    DialogRow(title: "Format", symbol: "archivebox") {
+                    DialogRow(title: L10n.text("Format"), symbol: "archivebox") {
                         ArchiveFormatPicker(selection: $session.format)
                     }
                     if ArchiveFormat.named(session.format).supportsCompression {
-                    DialogRow(title: "Kompression", symbol: "slider.horizontal.3") {
-                        Picker("Kompression", selection: $session.level) {
-                            Text("Schnell").tag("1"); Text("Normal").tag("5"); Text("Maximum").tag("9")
+                    DialogRow(title: L10n.text("Compression"), symbol: "slider.horizontal.3") {
+                        Picker(L10n.text("Compression"), selection: $session.level) {
+                            Text(L10n.text("Fast")).tag("1"); Text(L10n.text("Normal")).tag("5"); Text(L10n.text("Maximum")).tag("9")
                         }.labelsHidden()
                     }
                 }
                 }
                 if session.action != .pack || ArchiveFormat.named(session.format).supportsPassword {
-                DialogRow(title: "Passwort", symbol: "lock") { PasswordField(password: $session.password) }
+                DialogRow(title: L10n.text("Password"), symbol: "lock") { PasswordField(password: $session.password) }
                 if session.action == .pack, !session.password.isEmpty {
-                    DialogRow(title: "Bestätigen", symbol: "checkmark.shield") {
-                        SecureField("Passwort wiederholen", text: $session.confirmation).labelsHidden().textFieldStyle(.roundedBorder)
-                            .accessibilityLabel("Passwort bestätigen")
+                    DialogRow(title: L10n.text("Confirm"), symbol: "checkmark.shield") {
+                        SecureField(L10n.text("Repeat password"), text: $session.confirmation).labelsHidden().textFieldStyle(.roundedBorder)
+                            .accessibilityLabel(L10n.text("Confirm password"))
                     }
                 }
             }
@@ -291,12 +291,12 @@ struct QuickActionView: View {
     }
     private var helperText: String {
         if session.action == .pack, !session.confirmation.isEmpty, session.confirmation != session.password {
-            return "Die Passwörter stimmen noch nicht überein."
+            return L10n.text("The passwords do not match yet.")
         }
         switch session.action {
-        case .check: return "Prüft, ob das Archiv vollständig und unbeschädigt ist."
-        case .extract: return "Entpackt in einen neuen Unterordner neben dem Archiv. Namenskonflikte behandelt Finder."
-        case .pack: if !ArchiveFormat.named(session.format).supportsPassword { return "TAR-Archive werden ohne Passwort erstellt." }; return session.format == "zip" ? "ZIP-Passwort: druckbare ASCII-Zeichen. Für Umlaute bitte 7z wählen." : "Optionaler AES-256-Passwortschutz. Kein Passwort wird gespeichert."
+        case .check: return L10n.text("Tests whether the archive is complete and undamaged.")
+        case .extract: return L10n.text("Extracts into a new subfolder next to the archive. Finder handles name conflicts.")
+        case .pack: if !ArchiveFormat.named(session.format).supportsPassword { return L10n.text("TAR archives are created without a password.") }; return session.format == "zip" ? L10n.text("ZIP password: printable ASCII characters. Use 7z for Unicode.") : L10n.text("Optional AES-256 password protection. No password is stored.")
         }
     }
 }

@@ -291,3 +291,65 @@ extension ArchiveEngineTests {
         _ = await (a, b); XCTAssertEqual(calls, 1)
     }
 }
+
+final class LocalizationTests: XCTestCase {
+    private func language(_ code: String) throws -> Bundle {
+        try XCTUnwrap(Bundle(path: XCTUnwrap(Bundle.main.path(forResource: code, ofType: "lproj"))))
+    }
+    func testEnglishGermanAndEnglishFallback() throws {
+        let en = try language("en"), de = try language("de")
+        XCTAssertEqual(L10n.text("Create archive", bundle: en), "Create archive")
+        XCTAssertEqual(L10n.text("Create archive", bundle: de), "Archiv erstellen")
+        XCTAssertEqual(L10n.text("Unknown future message", bundle: en), "Unknown future message")
+        XCTAssertEqual(Bundle.main.developmentLocalization, "en")
+        XCTAssertEqual(Bundle.preferredLocalizations(from: ["en", "de"], forPreferences: ["fr"]).first, "en")
+    }
+    func testAllTranslationKeysAndFormatArguments() throws {
+        func table(_ bundle: Bundle) throws -> [String: String] {
+            let path = try XCTUnwrap(bundle.path(forResource: "Localizable", ofType: "strings"))
+            let data = try Data(contentsOf: URL(fileURLWithPath: path))
+            return try XCTUnwrap(PropertyListSerialization.propertyList(from: data, format: nil) as? [String: String])
+        }
+        let en = try table(language("en")), de = try table(language("de"))
+        XCTAssertEqual(Set(en.keys), Set(de.keys)); XCTAssertGreaterThan(en.count, 180)
+        for key in en.keys {
+            XCTAssertEqual(en[key], key)
+            XCTAssertFalse(try XCTUnwrap(de[key]).isEmpty)
+            XCTAssertEqual(key.components(separatedBy: "%@").count, de[key]!.components(separatedBy: "%@").count)
+        }
+        let filename = "Grüße & [Entwurf].txt"
+        let message = L10n.formatted("Archive created successfully.\n%@", arguments: [filename], bundle: try language("de"))
+        XCTAssertEqual(message, "Archiv erfolgreich erstellt.\n" + filename)
+        XCTAssertEqual(L10n.formatted("%@ item", arguments: [1], bundle: try language("de")), "1 Objekt")
+        XCTAssertEqual(L10n.formatted("%@ items", arguments: [2], bundle: try language("en")), "2 items")
+    }
+    func testAboutAndProjectLicenseResources() throws {
+        for code in ["en", "de"] {
+            let bundle = try language(code)
+            let credits = try XCTUnwrap(bundle.url(forResource: "Credits", withExtension: "rtf"))
+            XCTAssertTrue(credits.path.contains(code + ".lproj"))
+            let text = try String(contentsOf: credits)
+            XCTAssertTrue(text.contains(code == "en" ? "Licenses and source code" : "Lizenzen und Quellcode"))
+        }
+        let resources = try XCTUnwrap(Bundle.main.resourceURL)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: resources.appendingPathComponent("Credits.rtf").path))
+        for name in ["YA7-License.txt", "YA7-Licensing.md"] {
+            XCTAssertTrue(FileManager.default.fileExists(atPath: resources.appendingPathComponent("Legal/" + name).path))
+        }
+    }
+    func testFinderBundleDisplayNamesAndResources() throws {
+        for (name, english, german) in [("PackAction", "YA7: Compress", "YA7: Packen"), ("ExtractAction", "YA7: Extract", "YA7: Entpacken"), ("CheckAction", "YA7: Test", "YA7: Prüfen")] {
+            let bundle = try XCTUnwrap(Bundle(url: Bundle.main.bundleURL.appendingPathComponent("Contents/PlugIns/" + name + ".appex")))
+            XCTAssertEqual(bundle.developmentLocalization, "en")
+            for (code, expected) in [("en", english), ("de", german)] {
+                let path = try XCTUnwrap(bundle.path(forResource: code, ofType: "lproj"))
+                let localized = try XCTUnwrap(Bundle(path: path))
+                XCTAssertEqual(localized.localizedString(forKey: "CFBundleDisplayName", value: nil, table: "InfoPlist"), expected)
+                XCTAssertEqual(L10n.text("Extract", bundle: localized), code == "de" ? "Entpacken" : "Extract")
+            }
+            let extensionInfo = try XCTUnwrap(bundle.infoDictionary?["NSExtension"] as? [String: Any])
+            let attributes = try XCTUnwrap(extensionInfo["NSExtensionAttributes"] as? [String: Any])
+            XCTAssertNil(attributes["NSExtensionServiceFinderPreviewLabel"], "Use localized bundle display name as Finder fallback")
+        }
+    }
+}

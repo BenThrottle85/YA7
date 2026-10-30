@@ -31,11 +31,15 @@ jobs:
         run: xcodebuild -version
       - name: Test (local signing, no Apple credentials)
         run: |
-          xcodebuild -project YA7.xcodeproj -scheme YA7 -configuration Debug \
-            -destination 'platform=macOS' -parallel-testing-enabled NO \
-            -derivedDataPath "$RUNNER_TEMP/YA7-tests" \
-            -resultBundlePath "$RUNNER_TEMP/YA7-tests.xcresult" \
-            CODE_SIGN_IDENTITY=- OTHER_CODE_SIGN_FLAGS=--timestamp=none test
+          for language in en de; do
+            if [ "$language" = de ]; then region=DE; else region=US; fi
+            xcodebuild -project YA7.xcodeproj -scheme YA7 -configuration Debug \
+              -destination 'platform=macOS' -parallel-testing-enabled NO \
+              -testLanguage "$language" -testRegion "$region" \
+              -derivedDataPath "$RUNNER_TEMP/YA7-tests" \
+              -resultBundlePath "$RUNNER_TEMP/YA7-tests-$language.xcresult" \
+              CODE_SIGN_IDENTITY=- OTHER_CODE_SIGN_FLAGS=--timestamp=none test
+          done
       - name: Build Universal app
         env:
           YA7_BUILD_ROOT: ${{ runner.temp }}/YA7-release

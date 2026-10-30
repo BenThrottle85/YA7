@@ -59,23 +59,23 @@ struct YA7App: App {
         .windowToolbarStyle(.unified)
         .commands {
             CommandGroup(after: .appInfo) {
-                Button("Lizenzen und Quellcode …") {
+                Button(L10n.text("Licenses and source code…")) {
                     if let resources = Bundle.main.resourceURL {
                         NSWorkspace.shared.open(resources.appendingPathComponent("Legal", isDirectory: true))
                     }
                 }
             }
             CommandGroup(replacing: .newItem) {
-                Button("Archiv öffnen …", action: model.chooseArchive).keyboardShortcut("o")
-                Button("Ordner öffnen …", action: model.chooseFolder).keyboardShortcut("o", modifiers: [.command, .shift])
+                Button(L10n.text("Open archive…"), action: model.chooseArchive).keyboardShortcut("o")
+                Button(L10n.text("Open folder…"), action: model.chooseFolder).keyboardShortcut("o", modifiers: [.command, .shift])
             }
             CommandGroup(replacing: .appSettings) {
-                Button("Einstellungen …") { model.dialog = .settings }.keyboardShortcut(",")
+                Button(L10n.text("Settings…")) { model.dialog = .settings }.keyboardShortcut(",")
             }
-            CommandMenu("Archiv") {
-                Button("Packen …") { model.dialog = .pack }.disabled(model.selection.isEmpty || model.archiveURL != nil)
-                Button("Entpacken …") { model.dialog = .extract }.disabled(!model.canExtract)
-                Button("Prüfen …") { model.dialog = .check }.disabled(!model.canExtract)
+            CommandMenu(L10n.text("Archive")) {
+                Button(L10n.text("Compress…")) { model.dialog = .pack }.disabled(model.selection.isEmpty || model.archiveURL != nil)
+                Button(L10n.text("Extract…")) { model.dialog = .extract }.disabled(!model.canExtract)
+                Button(L10n.text("Test…")) { model.dialog = .check }.disabled(!model.canExtract)
             }
         }
     }

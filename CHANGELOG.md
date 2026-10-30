@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.8 — 2026-10-30
+
+- Add complete English and German interface resources; follow macOS language preferences with English fallback.
+- Localize menus, dialog controls, accessibility labels, status/error messages, Finder action names and About text.
+- Format file-list dates using the user's regional settings; preserve user file/archive names.
+- Include YA7's LGPL license and licensing notice in the app and bilingual DMG instructions.
+- Add localization coverage, placeholder, fallback and extension-resource tests; run all tests in both languages.
+
 ## 0.2.7 — 2026-10-30
 
 - Add TAR, TAR.GZ, TAR.BZ2 and TAR.XZ creation with multi-file support.

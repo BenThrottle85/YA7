@@ -120,16 +120,16 @@ struct FolderPickerRow: View {
     @Binding var path: String
     var body: some View {
         HStack(spacing: 8) {
-            Text(path.isEmpty ? "Ordner auswählen" : URL(fileURLWithPath: path).lastPathComponent)
+            Text(path.isEmpty ? L10n.text("Choose a folder") : URL(fileURLWithPath: path).lastPathComponent)
                 .lineLimit(1).truncationMode(.middle)
                 .frame(maxWidth: .infinity, alignment: .leading)
-            Button("Auswählen …") {
+            Button(L10n.text("Choose…")) {
                 let panel = NSOpenPanel()
                 panel.canChooseDirectories = true; panel.canChooseFiles = false; panel.canCreateDirectories = true
-                panel.prompt = "Auswählen"
+                panel.prompt = L10n.text("Choose")
                 if panel.runModal() == .OK, let url = panel.url { path = url.path }
             }
-            .accessibilityLabel("Zielordner auswählen")
+            .accessibilityLabel(L10n.text("Choose destination folder"))
         }.help(path)
     }
 }
@@ -140,17 +140,17 @@ struct PasswordField: View {
     var body: some View {
         HStack(spacing: 8) {
             Group {
-                if visible { TextField("Optional", text: $password) }
-                else { SecureField("Optional", text: $password) }
+                if visible { TextField(L10n.text("Optional"), text: $password) }
+                else { SecureField(L10n.text("Optional"), text: $password) }
             }
-            .textFieldStyle(.roundedBorder).labelsHidden().accessibilityLabel("Passwort")
+            .textFieldStyle(.roundedBorder).labelsHidden().accessibilityLabel(L10n.text("Password"))
             Button { visible.toggle() } label: {
                 Image(systemName: visible ? "eye.slash" : "eye")
                     .frame(width: 18, height: 18)
             }
             .buttonStyle(.borderless)
-            .help(visible ? "Passwort verbergen" : "Passwort anzeigen")
-            .accessibilityLabel(visible ? "Passwort verbergen" : "Passwort anzeigen")
+            .help(visible ? L10n.text("Hide password") : L10n.text("Show password"))
+            .accessibilityLabel(visible ? L10n.text("Hide password") : L10n.text("Show password"))
         }
     }
 }
@@ -158,7 +158,7 @@ struct PasswordField: View {
 struct ArchiveFormatPicker: View {
     @Binding var selection: String
     var body: some View {
-        Picker("Format", selection: $selection) {
+        Picker(L10n.text("Format"), selection: $selection) {
             ForEach(ArchiveFormat.writableFormats) { format in Text(format.title).tag(format.id) }
         }.labelsHidden()
     }

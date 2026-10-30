@@ -5,29 +5,30 @@
 	<key>ArchivAction</key>
 	<string>check</string>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>de</string>
+	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>YA7: Prüfen</string>
+	<string>YA7: Test</string>
 	<key>CFBundleExecutable</key>
 	<string>CheckAction</string>
 	<key>CFBundleIdentifier</key>
 	<string>de.local.archiv.prototype.check</string>
 	<key>CFBundleLocalizations</key>
 	<array>
+		<string>en</string>
 		<string>de</string>
 	</array>
 	<key>CFBundleName</key>
-	<string>YA7: Prüfen</string>
+	<string>YA7: Test</string>
 	<key>CFBundlePackageType</key>
 	<string>XPC!</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.2.7</string>
+	<string>0.2.8</string>
 	<key>CFBundleSupportedPlatforms</key>
 	<array>
 		<string>MacOSX</string>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>9</string>
+	<string>10</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>14.0</string>
 	<key>LSUIElement</key>
@@ -42,8 +43,6 @@
 			<true/>
 			<key>NSExtensionServiceFinderPreviewIconName</key>
 			<string>YA7CheckActionTemplate</string>
-			<key>NSExtensionServiceFinderPreviewLabel</key>
-			<string>YA7: Prüfen</string>
 			<key>NSExtensionServiceRoleType</key>
 			<string>NSExtensionServiceRoleTypeEditor</string>
 			<key>NSExtensionServiceTouchBarIconName</key>

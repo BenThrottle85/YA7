@@ -22,7 +22,7 @@ YA7 app as Contents/Resources/Legal/7z2605-src.tar.xz. It includes the source,
 build files and upstream documentation. Source-Provenance.json records upstream
 URLs and SHA-256 checksums. The containing app also supplies these sources for
 its bundled Finder extensions and all copies of 7zz. Use the YA7 application
-menu “Lizenzen und Quellcode …” to access this directory.
+menu “Licenses and source code…” (“Lizenzen und Quellcode …” in German) to access this directory.
 
 Upstream project: https://www.7-zip.org/
 Release: https://github.com/ip7z/7zip/releases/tag/26.05
@@ -38,3 +38,7 @@ the YA7 “Zip Seven” app icon is a separate generated design.
 Apple-provided interface symbols are not relicensed by any YA7 source-code
 license. Their use remains subject to Apple's terms for Apple-platform apps.
 See https://developer.apple.com/design/human-interface-guidelines/sf-symbols
+
+YA7 project-owned code is licensed under GNU LGPL 2.1 or later.
+See YA7-License.txt and YA7-Licensing.md. Corresponding YA7 source and build
+scripts: https://github.com/BenThrottle85/YA7 (versioned release source archives).

@@ -3,10 +3,11 @@ import PackageDescription
 
 let package = Package(
     name: "YA7",
+    defaultLocalization: "en",
     platforms: [.macOS(.v14)],
     products: [.executable(name: "YA7", targets: ["YA7"])],
     targets: [
-        .executableTarget(name: "YA7"),
+        .executableTarget(name: "YA7", resources: [.process("Resources")]),
         .testTarget(name: "YA7Tests", dependencies: ["YA7"], resources: [.copy("Fixtures")])
     ]
 )

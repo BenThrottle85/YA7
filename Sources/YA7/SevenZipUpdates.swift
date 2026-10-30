@@ -26,7 +26,7 @@ struct SevenZipRelease: Codable, Equatable {
         guard !value.draft, !value.prerelease, components(value.tag_name) != nil,
               value.html_url.scheme == "https", value.html_url.host == "github.com",
               value.html_url.path.hasPrefix("/ip7z/7zip/releases/tag/"), value.html_url.user == nil else {
-            throw ArchiveFailure.message("Die Versionsantwort von 7-Zip konnte nicht gelesen werden.")
+            throw ArchiveFailure.message(L10n.text("The 7-Zip version response could not be read."))
         }
         return .init(version: value.tag_name, url: value.html_url)
     }
@@ -74,7 +74,7 @@ final class SevenZipUpdates {
         guard let resources = Bundle.main.resourceURL,
               let data = try? Data(contentsOf: resources.appendingPathComponent("Legal/Source-Provenance.json")),
               let meta = try? JSONDecoder().decode(Metadata.self, from: data),
-              SevenZipRelease.components(meta.version) != nil else { return "Unbekannt" }
+              SevenZipRelease.components(meta.version) != nil else { return L10n.text("Unknown") }
         return meta.version
     }
     func isDue(at date: Date) -> Bool {
@@ -108,7 +108,7 @@ final class SevenZipUpdates {
                 defaults.set(lastSuccess, forKey: "sevenZipLastSuccess")
                 defaults.set(try JSONEncoder().encode(release), forKey: "sevenZipLatest")
             } catch {
-                lastFailure = "Versionsprüfung nicht möglich. Bitte Internetverbindung prüfen und später erneut versuchen."
+                lastFailure = L10n.text("Unable to check the version. Check your internet connection and try again later.")
                 if manual { manualError = lastFailure }
             }
             checking = false

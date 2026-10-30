@@ -1,6 +1,10 @@
 # YA7 - Yet Another 7-Zip GUI for macOS
 
-Version **0.2.7 (Build 9)**. Native macOS-App ab macOS 14, Universal-Build fuer Apple Silicon und Intel. Enthalten: offizielles 7-Zip 26.05 und drei Finder-Schnellaktionen. Kein Homebrew erforderlich.
+Version **0.2.8 (Build 10)**. Native macOS-App ab macOS 14, Universal-Build fuer Apple Silicon und Intel. Enthalten: offizielles 7-Zip 26.05 und drei Finder-Schnellaktionen. Kein Homebrew erforderlich.
+
+## Sprachen
+
+YA7 unterstützt **Deutsch und Englisch**. Die Sprache folgt den macOS-App-Einstellungen; Englisch ist die Rückfallsprache. Für eine abweichende App-Sprache: **Systemeinstellungen → Allgemein → Sprache & Region → Programme**, YA7 hinzufügen und Deutsch oder Englisch wählen, anschließend YA7 neu starten. Finder-Erweiterungen folgen der System-/Finder-Sprache. Eigene Datei- und Archivnamen bleiben unverändert.
 
 ## Archivformate
 
@@ -22,7 +26,7 @@ Tests, Vorschau-/Demo-Renderings und Finder-Erweiterungen starten keine automati
 
 ## Installation und Finder
 
-`YA7-0.2.7-macOS.dmg` oeffnen und YA7.app auf Programme ziehen. Eine vorhandene laufende YA7-App vor dem Austausch regulär schliessen. Danach aus Programme starten. Keine Testkopie aus einem Build-Ordner starten.
+`YA7-0.2.8-macOS.dmg` oeffnen und YA7.app auf Programme ziehen. Eine vorhandene laufende YA7-App vor dem Austausch regulär schliessen. Danach aus Programme starten. Keine Testkopie aus einem Build-Ordner starten.
 
 Finder: Rechtsklick -> Schnellaktionen -> Anpassen. **YA7: Packen**, **YA7: Entpacken**, **YA7: Pruefen** aktivieren. Bei Erfolg **Fertig** waehlen, damit Finder die Ausgaben uebernimmt. Die Haupt-App hat eine eigene Zielordnerauswahl. Keine automatische Installation oder oeffentliche Veroeffentlichung durch die Buildskripte.
 
@@ -38,7 +42,7 @@ Separat bekannte Punkte: ueberlappende Archiv-Leseauftraege koennten aeltere Erg
 
 `YA7.xcodeproj` mit Schema YA7 oeffnen. `sh build-app.sh` baut alle Universal-Komponenten und exportiert die signierte App. Lokale Entwicklung bleibt mit Ad-hoc-Signierung moeglich. Das eingecheckte Xcode-Projekt benoetigt keine Drittanbieter-Generatoren; `python3 Scripts/generate-project.py` aktualisiert Quellen und Finder-Typregeln aus dem gemeinsamen Katalog. Der Generator benoetigt die installierten Xcode-Werkzeuge.
 
-18 Xcode-Funktionstests bestanden: bisherige ZIP-/7z-Pruefungen, neue TAR-Roundtrips und Auswahl, Zielkonflikte, gefaehrliche innere Pfade, Abbruch, zusaetzliche CAB/ISO/DMG/Zstandard-Fixtures und netzwerkfreie Versions-/Intervall-/Fehlertests. Testbeispiele sind im Quellprojekt enthalten. Zusaetzlich eine echte Versionsabfrage gegen das offizielle Projekt erfolgreich.
+22 Xcode-Funktionstests je Sprache bestanden: bisherige ZIP-/7z-Pruefungen, neue TAR-Roundtrips und Auswahl, Zielkonflikte, gefaehrliche innere Pfade, Abbruch, zusaetzliche CAB/ISO/DMG/Zstandard-Fixtures und netzwerkfreie Versions-/Intervall-/Fehlertests. Testbeispiele sind im Quellprojekt enthalten. Zusaetzlich eine echte Versionsabfrage gegen das offizielle Projekt erfolgreich.
 
 Einstellungen hell/dunkel sowie die Finder-Konfigurationsansicht mit TAR.XZ visuell geprueft. Die separate native Finder-Ansichtsprobe ist kein Finder-Screenshot. Ein erneuter Live-Test ueber das echte Finder-Rechtsklick-Menue war mit den verfuegbaren Werkzeugen nicht moeglich. Intel und macOS 14 wurden kompiliert, nicht auf separaten Systemen ausgefuehrt. Frischer Download-/Installationstest auf einem zweiten Mac bleibt offen.
 
@@ -49,3 +53,5 @@ Developer-ID- und Notarisierungsablauf: [NOTARISIERUNG.md](../NOTARISIERUNG.md).
 YA7 -> **Lizenzen und Quellcode ...** oeffnet die vollstaendigen LGPL-/Herstellerhinweise und das passende originale 7-Zip-Quellarchiv. Herkunft und SHA-256 stehen in `Vendor/7zip/Source-Provenance.json`. Das Vendor-Binary wurde nicht funktional geaendert; gebuendelte Kopien werden fuer macOS signiert.
 
 7-Zip Copyright (C) 1999-2026 Igor Pavlov. LGPL-2.1-oder-spaeter, BSD und unRAR-Bedingungen gelten unveraendert. Der eigene YA7-Code steht unter LGPL-2.1-or-later; Einzelheiten und Ausnahmen stehen in [LICENSING.md](../LICENSING.md). Anbieterangaben und formale Namens-/Rechtepruefung sind getrennt zu beurteilen. Die selbst erzeugten Test-Fixtures enthalten ausschliesslich YA7-Beispieltext. Apples UI-Symbole sind nicht durch eine eigene YA7-Lizenz neu lizenziert. App-Icon: **Zip Seven**, separate blaue Sieben mit Reissverschluss, alle Standard-/Retina-Groessen.
+
+![YA7-Einstellungen auf Deutsch](images/settings-de-light.png)

@@ -35,6 +35,12 @@
 			"sourceTree" = "<group>";
 			"lastKnownFileType" = "sourcecode.swift";
 		};
+		"B7607462FBCF6385E4377404" = {
+			"isa" = "PBXFileReference";
+			"path" = "Sources/YA7/Localization.swift";
+			"sourceTree" = "<group>";
+			"lastKnownFileType" = "sourcecode.swift";
+		};
 		"4C3CC4FA948B66CD9F5A3695" = {
 			"isa" = "PBXFileReference";
 			"path" = "Sources/YA7/SevenZipUpdateView.swift";
@@ -130,6 +136,78 @@
 			"path" = "Bundle/ActionIcons.xcassets";
 			"sourceTree" = "<group>";
 			"lastKnownFileType" = "folder.assetcatalog";
+		};
+		"6F639AE74ED24EB00D6EB52D" = {
+			"isa" = "PBXFileReference";
+			"path" = "Bundle/Localization/de.lproj/Credits.rtf";
+			"sourceTree" = "<group>";
+			"lastKnownFileType" = "text";
+		};
+		"9224B4A60A96C4C6F173E1CB" = {
+			"isa" = "PBXFileReference";
+			"path" = "Bundle/Localization/de.lproj/InfoPlist-CheckAction.strings";
+			"sourceTree" = "<group>";
+			"lastKnownFileType" = "text";
+		};
+		"F781E2BC12C176C1443CAABB" = {
+			"isa" = "PBXFileReference";
+			"path" = "Bundle/Localization/de.lproj/InfoPlist-ExtractAction.strings";
+			"sourceTree" = "<group>";
+			"lastKnownFileType" = "text";
+		};
+		"85AE30246B9567C30369FB61" = {
+			"isa" = "PBXFileReference";
+			"path" = "Bundle/Localization/de.lproj/InfoPlist-PackAction.strings";
+			"sourceTree" = "<group>";
+			"lastKnownFileType" = "text";
+		};
+		"6387C7EDFF5718994068D779" = {
+			"isa" = "PBXFileReference";
+			"path" = "Bundle/Localization/de.lproj/InfoPlist-YA7.strings";
+			"sourceTree" = "<group>";
+			"lastKnownFileType" = "text";
+		};
+		"B85AE8C4D8E18DACA80D8A04" = {
+			"isa" = "PBXFileReference";
+			"path" = "Bundle/Localization/en.lproj/Credits.rtf";
+			"sourceTree" = "<group>";
+			"lastKnownFileType" = "text";
+		};
+		"6449A86F4B98132A70A0D51F" = {
+			"isa" = "PBXFileReference";
+			"path" = "Bundle/Localization/en.lproj/InfoPlist-CheckAction.strings";
+			"sourceTree" = "<group>";
+			"lastKnownFileType" = "text";
+		};
+		"7527AA8F738146A0B6113331" = {
+			"isa" = "PBXFileReference";
+			"path" = "Bundle/Localization/en.lproj/InfoPlist-ExtractAction.strings";
+			"sourceTree" = "<group>";
+			"lastKnownFileType" = "text";
+		};
+		"6135AE8BCBD52890004DD9C9" = {
+			"isa" = "PBXFileReference";
+			"path" = "Bundle/Localization/en.lproj/InfoPlist-PackAction.strings";
+			"sourceTree" = "<group>";
+			"lastKnownFileType" = "text";
+		};
+		"15B688A74F5B1F4AFE2D231B" = {
+			"isa" = "PBXFileReference";
+			"path" = "Bundle/Localization/en.lproj/InfoPlist-YA7.strings";
+			"sourceTree" = "<group>";
+			"lastKnownFileType" = "text";
+		};
+		"EB6CBFF9BBC1F088CA6BCF70" = {
+			"isa" = "PBXFileReference";
+			"path" = "Sources/YA7/Resources/de.lproj/Localizable.strings";
+			"sourceTree" = "<group>";
+			"lastKnownFileType" = "text";
+		};
+		"C7DEFC3157AF9D51139CFEAB" = {
+			"isa" = "PBXFileReference";
+			"path" = "Sources/YA7/Resources/en.lproj/Localizable.strings";
+			"sourceTree" = "<group>";
+			"lastKnownFileType" = "text";
 		};
 		"363A5141F6909DEEBA7F3F50" = {
 			"isa" = "PBXFileReference";
@@ -236,6 +314,7 @@
 				"4D9362D36982622EDB1A80BA",
 				"8AEF1CB539C7D91F8D7D51CD",
 				"84BD4D8F8590B64E18A69198",
+				"B7607462FBCF6385E4377404",
 				"4C3CC4FA948B66CD9F5A3695",
 				"BE2EFC72B9CD3090537B3860",
 				"C4540EE62539CF661BB3130C",
@@ -259,6 +338,18 @@
 				"28783D81E5D5A76407B52A75",
 				"5DB165F36D9BAA1C8B81B238",
 				"9CB32354CAD0884550DE7CD0",
+				"6F639AE74ED24EB00D6EB52D",
+				"9224B4A60A96C4C6F173E1CB",
+				"F781E2BC12C176C1443CAABB",
+				"85AE30246B9567C30369FB61",
+				"6387C7EDFF5718994068D779",
+				"B85AE8C4D8E18DACA80D8A04",
+				"6449A86F4B98132A70A0D51F",
+				"7527AA8F738146A0B6113331",
+				"6135AE8BCBD52890004DD9C9",
+				"15B688A74F5B1F4AFE2D231B",
+				"EB6CBFF9BBC1F088CA6BCF70",
+				"C7DEFC3157AF9D51139CFEAB",
 				"363A5141F6909DEEBA7F3F50",
 				"E786478C11C4FEDA4A7A8F39",
 				"530B7BEA7EAEECD5239B1751",
@@ -304,6 +395,10 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "84BD4D8F8590B64E18A69198";
 		};
+		"C9EDEB2F57F224767508FCE9" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "B7607462FBCF6385E4377404";
+		};
 		"A847C567DC7B8ED1CAFC54AB" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "4C3CC4FA948B66CD9F5A3695";
@@ -333,6 +428,7 @@
 				"E030EF9720C8FBDD6B263B16",
 				"8E0DB2143038358C032D9291",
 				"98D9CAE27894031D196CC061",
+				"C9EDEB2F57F224767508FCE9",
 				"A847C567DC7B8ED1CAFC54AB",
 				"F3D507B74479C1CBA3F644BD",
 				"3B910F423817CFAD551CD5C2",
@@ -348,10 +444,6 @@
 			);
 			"runOnlyForDeploymentPostprocessing" = "0";
 		};
-		"B216E0D9A4E9AE48A25949D4" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "C1258A25936E337DF2731E0B";
-		};
 		"2EA3AB575CD5EDE6E2BF0253" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "A75D3F1F979C219277ED7CD0";
@@ -360,7 +452,6 @@
 			"isa" = "PBXResourcesBuildPhase";
 			"buildActionMask" = "2147483647";
 			"files" = (
-				"B216E0D9A4E9AE48A25949D4",
 				"2EA3AB575CD5EDE6E2BF0253",
 			);
 			"runOnlyForDeploymentPostprocessing" = "0";
@@ -458,6 +549,14 @@
 				"$(SRCROOT)/ThirdParty/LGPL-2.1.txt",
 				"$(SRCROOT)/Vendor/7zip/Source-Provenance.json",
 				"$(SRCROOT)/Vendor/7zip/7z2605-src.tar.xz",
+				"$(SRCROOT)/Sources/YA7/Resources/en.lproj/Localizable.strings",
+				"$(SRCROOT)/Sources/YA7/Resources/de.lproj/Localizable.strings",
+				"$(SRCROOT)/Bundle/Localization/en.lproj/InfoPlist-YA7.strings",
+				"$(SRCROOT)/Bundle/Localization/de.lproj/InfoPlist-YA7.strings",
+				"$(SRCROOT)/Bundle/Localization/en.lproj/Credits.rtf",
+				"$(SRCROOT)/Bundle/Localization/de.lproj/Credits.rtf",
+				"$(SRCROOT)/LICENSE",
+				"$(SRCROOT)/LICENSING.md",
 			);
 			"outputPaths" = (
 				"$(TARGET_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/Helpers/7zz",
@@ -467,6 +566,14 @@
 				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Legal/7zip-License.txt",
 				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Legal/7z2605-src.tar.xz",
 				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Legal/Source-Provenance.json",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/en.lproj/Localizable.strings",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/en.lproj/InfoPlist.strings",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/en.lproj/Credits.rtf",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/de.lproj/Localizable.strings",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/de.lproj/InfoPlist.strings",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/de.lproj/Credits.rtf",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Legal/YA7-License.txt",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Legal/YA7-Licensing.md",
 			);
 			"name" = "7-Zip einbetten und lokal signieren";
 			"shellPath" = "/bin/sh";
@@ -588,6 +695,10 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "4D9362D36982622EDB1A80BA";
 		};
+		"47E71220E61A9368CFFCAFF5" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "B7607462FBCF6385E4377404";
+		};
 		"2A53E04F2057FB157AD7C52E" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "9A38B550BD7B1BF0B99887A6";
@@ -601,6 +712,7 @@
 				"98E9DCEC570CDB0E4B64578F",
 				"7D56F5E23558DD4E42BE7E3D",
 				"1E2650F7029FB9BF2CA26FFE",
+				"47E71220E61A9368CFFCAFF5",
 				"2A53E04F2057FB157AD7C52E",
 			);
 			"runOnlyForDeploymentPostprocessing" = "0";
@@ -643,6 +755,14 @@
 				"$(SRCROOT)/ThirdParty/LGPL-2.1.txt",
 				"$(SRCROOT)/Vendor/7zip/Source-Provenance.json",
 				"$(SRCROOT)/Vendor/7zip/7z2605-src.tar.xz",
+				"$(SRCROOT)/Sources/YA7/Resources/en.lproj/Localizable.strings",
+				"$(SRCROOT)/Sources/YA7/Resources/de.lproj/Localizable.strings",
+				"$(SRCROOT)/Bundle/Localization/en.lproj/InfoPlist-PackAction.strings",
+				"$(SRCROOT)/Bundle/Localization/de.lproj/InfoPlist-PackAction.strings",
+				"$(SRCROOT)/Bundle/Localization/en.lproj/Credits.rtf",
+				"$(SRCROOT)/Bundle/Localization/de.lproj/Credits.rtf",
+				"$(SRCROOT)/LICENSE",
+				"$(SRCROOT)/LICENSING.md",
 			);
 			"outputPaths" = (
 				"$(TARGET_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/Helpers/7zz",
@@ -650,6 +770,14 @@
 				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Legal/NOTICE.txt",
 				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Legal/LGPL-2.1.txt",
 				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Legal/7zip-License.txt",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/en.lproj/Localizable.strings",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/en.lproj/InfoPlist.strings",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/en.lproj/Credits.rtf",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/de.lproj/Localizable.strings",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/de.lproj/InfoPlist.strings",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/de.lproj/Credits.rtf",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Legal/YA7-License.txt",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Legal/YA7-Licensing.md",
 			);
 			"name" = "7-Zip einbetten und lokal signieren";
 			"shellPath" = "/bin/sh";
@@ -785,6 +913,10 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "4D9362D36982622EDB1A80BA";
 		};
+		"39E0BF46DDC59B1B503E6D8A" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "B7607462FBCF6385E4377404";
+		};
 		"B8F8A3F67895B86FA187C9DB" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "9A38B550BD7B1BF0B99887A6";
@@ -798,6 +930,7 @@
 				"348E8E34F32EF25CC673CA53",
 				"FA3983025B826F63B4D383BE",
 				"12760D1510624CFF47911C3E",
+				"39E0BF46DDC59B1B503E6D8A",
 				"B8F8A3F67895B86FA187C9DB",
 			);
 			"runOnlyForDeploymentPostprocessing" = "0";
@@ -840,6 +973,14 @@
 				"$(SRCROOT)/ThirdParty/LGPL-2.1.txt",
 				"$(SRCROOT)/Vendor/7zip/Source-Provenance.json",
 				"$(SRCROOT)/Vendor/7zip/7z2605-src.tar.xz",
+				"$(SRCROOT)/Sources/YA7/Resources/en.lproj/Localizable.strings",
+				"$(SRCROOT)/Sources/YA7/Resources/de.lproj/Localizable.strings",
+				"$(SRCROOT)/Bundle/Localization/en.lproj/InfoPlist-ExtractAction.strings",
+				"$(SRCROOT)/Bundle/Localization/de.lproj/InfoPlist-ExtractAction.strings",
+				"$(SRCROOT)/Bundle/Localization/en.lproj/Credits.rtf",
+				"$(SRCROOT)/Bundle/Localization/de.lproj/Credits.rtf",
+				"$(SRCROOT)/LICENSE",
+				"$(SRCROOT)/LICENSING.md",
 			);
 			"outputPaths" = (
 				"$(TARGET_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/Helpers/7zz",
@@ -847,6 +988,14 @@
 				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Legal/NOTICE.txt",
 				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Legal/LGPL-2.1.txt",
 				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Legal/7zip-License.txt",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/en.lproj/Localizable.strings",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/en.lproj/InfoPlist.strings",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/en.lproj/Credits.rtf",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/de.lproj/Localizable.strings",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/de.lproj/InfoPlist.strings",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/de.lproj/Credits.rtf",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Legal/YA7-License.txt",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Legal/YA7-Licensing.md",
 			);
 			"name" = "7-Zip einbetten und lokal signieren";
 			"shellPath" = "/bin/sh";
@@ -982,6 +1131,10 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "4D9362D36982622EDB1A80BA";
 		};
+		"BF5C382C77F01E3C4DD559AB" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "B7607462FBCF6385E4377404";
+		};
 		"0321B751EB8EFFB5047CA6C2" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "9A38B550BD7B1BF0B99887A6";
@@ -995,6 +1148,7 @@
 				"19CFC2F8996E3AE9EFC6CB2A",
 				"D5F3C7834C4801BC8CA1D789",
 				"43AD4F1E345C30CEA4F7FF1F",
+				"BF5C382C77F01E3C4DD559AB",
 				"0321B751EB8EFFB5047CA6C2",
 			);
 			"runOnlyForDeploymentPostprocessing" = "0";
@@ -1037,6 +1191,14 @@
 				"$(SRCROOT)/ThirdParty/LGPL-2.1.txt",
 				"$(SRCROOT)/Vendor/7zip/Source-Provenance.json",
 				"$(SRCROOT)/Vendor/7zip/7z2605-src.tar.xz",
+				"$(SRCROOT)/Sources/YA7/Resources/en.lproj/Localizable.strings",
+				"$(SRCROOT)/Sources/YA7/Resources/de.lproj/Localizable.strings",
+				"$(SRCROOT)/Bundle/Localization/en.lproj/InfoPlist-CheckAction.strings",
+				"$(SRCROOT)/Bundle/Localization/de.lproj/InfoPlist-CheckAction.strings",
+				"$(SRCROOT)/Bundle/Localization/en.lproj/Credits.rtf",
+				"$(SRCROOT)/Bundle/Localization/de.lproj/Credits.rtf",
+				"$(SRCROOT)/LICENSE",
+				"$(SRCROOT)/LICENSING.md",
 			);
 			"outputPaths" = (
 				"$(TARGET_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/Helpers/7zz",
@@ -1044,6 +1206,14 @@
 				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Legal/NOTICE.txt",
 				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Legal/LGPL-2.1.txt",
 				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Legal/7zip-License.txt",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/en.lproj/Localizable.strings",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/en.lproj/InfoPlist.strings",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/en.lproj/Credits.rtf",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/de.lproj/Localizable.strings",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/de.lproj/InfoPlist.strings",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/de.lproj/Credits.rtf",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Legal/YA7-License.txt",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Legal/YA7-Licensing.md",
 			);
 			"name" = "7-Zip einbetten und lokal signieren";
 			"shellPath" = "/bin/sh";
@@ -1349,8 +1519,9 @@
 			};
 			"buildConfigurationList" = "862894B703A6DEDF96A9DD6C";
 			"compatibilityVersion" = "Xcode 14.0";
-			"developmentRegion" = "de";
+			"developmentRegion" = "en";
 			"knownRegions" = (
+				"en",
 				"de",
 				"Base",
 			);

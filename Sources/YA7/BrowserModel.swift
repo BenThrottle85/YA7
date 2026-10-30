@@ -33,7 +33,7 @@ final class BrowserModel {
         if demo {
             entries = archive ? BrowserEntry.archiveSamples : BrowserEntry.samples
             selection = archive ? ["brief"] : ["atlas"]
-            if archive { archiveURL = URL(fileURLWithPath: "/Beispiele/Projekt Atlas.7z") }
+            if archive { archiveURL = URL(fileURLWithPath: "/Examples/Project Atlas.7z") }
         } else {
             browse(FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Downloads"), remember: false)
         }
@@ -50,14 +50,15 @@ final class BrowserModel {
             let keys: Set<URLResourceKey> = [.isDirectoryKey, .fileSizeKey, .contentModificationDateKey, .localizedTypeDescriptionKey]
             let urls = try FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: Array(keys), options: [.skipsHiddenFiles])
             let formatter = DateFormatter()
-            formatter.locale = Locale(identifier: "de_DE")
-            formatter.dateFormat = "dd.MM.yyyy, HH:mm"
+            formatter.locale = .autoupdatingCurrent
+            formatter.dateStyle = .short
+            formatter.timeStyle = .short
             let newEntries = try urls.map { file -> BrowserEntry in
                 let values = try file.resourceValues(forKeys: keys)
                 let folder = values.isDirectory ?? false
                 let zipped = ArchiveFormat.recognizing(file.lastPathComponent) != nil
                 return BrowserEntry(id: file.path, name: file.lastPathComponent,
-                    size: Int64(values.fileSize ?? 0), kind: values.localizedTypeDescription ?? (folder ? "Ordner" : "Datei"),
+                    size: Int64(values.fileSize ?? 0), kind: values.localizedTypeDescription ?? (folder ? L10n.text("Folder") : L10n.text("File")),
                     modified: values.contentModificationDate.map(formatter.string) ?? "—",
                     symbol: folder ? "folder.fill" : zipped ? "doc.zipper" : "doc", folder: folder, url: file)
             }.sorted(by: Self.foldersFirst)
@@ -93,26 +94,26 @@ final class BrowserModel {
     func chooseFolder() {
         let panel = NSOpenPanel()
         panel.canChooseDirectories = true; panel.canChooseFiles = false
-        panel.prompt = "Öffnen"
+        panel.prompt = L10n.text("Open")
         if panel.runModal() == .OK, let url = panel.url { browse(url) }
     }
 
     func chooseArchive() {
         let panel = NSOpenPanel()
         panel.canChooseDirectories = false; panel.canChooseFiles = true
-        panel.message = "Unterstütztes Archiv auswählen (z. B. ZIP, 7z, TAR, RAR, ISO oder DMG)."
+        panel.message = L10n.text("Choose a supported archive (e.g. ZIP, 7z, TAR, RAR, ISO or DMG).")
         if panel.runModal() == .OK, let url = panel.url { openArchive(url) }
     }
 
     func open(_ entry: BrowserEntry) {
         if demo {
-            if entry.archive { archiveURL = URL(fileURLWithPath: "/Beispiele/" + entry.name); entries = BrowserEntry.archiveSamples; selection = [] }
+            if entry.archive { archiveURL = URL(fileURLWithPath: "/Examples/" + entry.name); entries = BrowserEntry.archiveSamples; selection = [] }
             else if entry.folder { entries = []; selection = []; archivePath = entry.name }
             return
         }
         if archiveURL != nil {
             if entry.folder { showArchiveLevel(entry.id) }
-            else { error = "Zum Öffnen bitte die Datei zuerst entpacken." }
+            else { error = L10n.text("Extract this file before opening it.") }
             return
         }
         guard let url = entry.url else { return }
@@ -146,7 +147,7 @@ final class BrowserModel {
             let folder = remainder.contains("/") || entry.folder
             if children[id] == nil || !folder {
                 children[id] = BrowserEntry(id: id, name: name, size: folder ? 0 : entry.size,
-                    kind: folder ? "Ordner" : entry.kind, modified: entry.modified,
+                    kind: folder ? L10n.text("Folder") : entry.kind, modified: entry.modified,
                     symbol: folder ? "folder.fill" : entry.symbol, folder: folder)
             }
         }
@@ -160,18 +161,18 @@ final class BrowserModel {
     }
 
     func showPrototypeNote() {
-        error = "Diese Ansicht zeigt Beispieldaten. Öffne einen eigenen Ordner oder ein Archiv, um die Grundfunktionen zu verwenden."
+        error = L10n.text("This view contains sample data. Open your own folder or archive to use the app.")
     }
 
     func perform(title: String, operation: @escaping () async throws -> String) {
         guard !busy else { return }
-        busy = true; taskTitle = title; taskDetails = "7-Zip arbeitet …"; result = nil; failed = false; dialog = .progress
+        busy = true; taskTitle = title; taskDetails = L10n.text("7-Zip is working…"); result = nil; failed = false; dialog = .progress
         task = Task {
             do { result = try await operation() }
-            catch { failed = true; result = Task.isCancelled ? "Auftrag abgebrochen." : error.localizedDescription }
+            catch { failed = true; result = Task.isCancelled ? L10n.text("Operation cancelled.") : error.localizedDescription }
             busy = false
         }
     }
 
-    func cancel() { engine.cancel(); task?.cancel(); failed = true; result = "Auftrag wird abgebrochen …" }
+    func cancel() { engine.cancel(); task?.cancel(); failed = true; result = L10n.text("Cancelling operation…") }
 }
