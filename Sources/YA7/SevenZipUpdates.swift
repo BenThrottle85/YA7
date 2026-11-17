@@ -9,9 +9,11 @@ struct SevenZipRelease: Codable, Equatable {
     static func components(_ text: String) -> [Int]? {
         let value = text.hasPrefix("v") ? String(text.dropFirst()) : text
         let parts = value.split(separator: ".", omittingEmptySubsequences: false)
-        guard (2...4).contains(parts.count), parts.allSatisfy({ !$0.isEmpty && $0.allSatisfy(\.isNumber) }),
-              parts.allSatisfy({ Int($0) != nil }) else { return nil }
-        return parts.compactMap { Int($0) }
+        guard (2...4).contains(parts.count),
+              parts.allSatisfy({ !$0.isEmpty && $0.allSatisfy(\.isNumber) }) else { return nil }
+        let numbers = parts.compactMap { Int($0) }
+        guard numbers.count == parts.count else { return nil }
+        return numbers
     }
     func isNewer(than bundled: String) -> Bool {
         guard var lhs = Self.components(version), var rhs = Self.components(bundled) else { return false }

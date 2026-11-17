@@ -26,7 +26,12 @@ struct ArchiveFormat: Codable, Identifiable {
         .init(id: "dmg", title: "DMG", extensions: ["dmg"], writable: false, compressor: nil)
     ]
     static var writableFormats: [ArchiveFormat] { all.filter(\.writable) }
-    static var recognizedExtensions: Set<String> { Set(all.flatMap(\.extensions).map { ($0 as NSString).pathExtension.isEmpty ? $0 : ($0 as NSString).pathExtension }) }
+    static var recognizedExtensions: Set<String> {
+        Set(all.flatMap(\.extensions).map { suffix in
+            let pathExtension = (suffix as NSString).pathExtension
+            return pathExtension.isEmpty ? suffix : pathExtension
+        })
+    }
     static func named(_ id: String) -> ArchiveFormat { all.first { $0.id == id } ?? all[0] }
     static func recognizing(_ name: String) -> ArchiveFormat? {
         all.first { format in format.extensions.contains { name.lowercased().hasSuffix("." + $0) } }
