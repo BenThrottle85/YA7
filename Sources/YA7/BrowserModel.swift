@@ -6,11 +6,42 @@ enum DialogKind: String, Identifiable {
     var id: String { rawValue }
 }
 
+struct BrowserSelectionSummary {
+    var entries: [BrowserEntry] = []
+    var fileCount = 0
+    var fileSize: Int64 = 0
+    var folderCount: Int { entries.count - fileCount }
+}
+
 @MainActor @Observable
 final class BrowserModel {
-    var entries: [BrowserEntry] = []
-    var selection: Set<String> = []
-    var search = ""
+    var entries: [BrowserEntry] = [] {
+        didSet {
+            updateSelectionSummary()
+            updateListing(resort: true)
+        }
+    }
+    var selection: Set<String> = [] {
+        didSet { if selection != oldValue { updateSelectionSummary() } }
+    }
+    var search = "" {
+        didSet {
+            guard search != oldValue else { return }
+            let visibleSelection = selected.filter { search.isEmpty || $0.name.localizedStandardContains(search) }
+            selection.formIntersection(visibleSelection.map(\.id))
+            updateListing(resort: false)
+        }
+    }
+    var sortOrder = [KeyPathComparator(\BrowserEntry.name)] {
+        didSet { if sortOrder != oldValue { updateListing(resort: true) } }
+    }
+    private(set) var filtered: [BrowserEntry] = []
+    private(set) var displayedEntries: [BrowserEntry] = []
+    private(set) var selectionSummary = BrowserSelectionSummary()
+    private(set) var isUpdatingListing = false
+    @ObservationIgnored private var sortingTask: Task<[BrowserEntry], Never>?
+    @ObservationIgnored private var listingTask: Task<Void, Never>?
+    @ObservationIgnored private var listingID = UUID()
     var location: URL?
     var archiveURL: URL?
     var archivePath = ""
@@ -44,12 +75,83 @@ final class BrowserModel {
         } else {
             browse(FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Downloads"), remember: false)
         }
+        updateSelectionSummary()
+        updateListing(resort: true)
     }
 
     var title: String { archiveURL?.lastPathComponent ?? location?.lastPathComponent ?? "Downloads" }
-    var selected: [BrowserEntry] { entries.filter { selection.contains($0.id) } }
-    var filtered: [BrowserEntry] { entries.filter { search.isEmpty || $0.name.localizedStandardContains(search) } }
-    var canExtract: Bool { archiveURL != nil || canExtract(selection) }
+    var selected: [BrowserEntry] { selectionSummary.entries }
+    var canExtract: Bool { archiveURL != nil || (selected.count == 1 && selected[0].archive) }
+
+    private func updateSelectionSummary() {
+        var summary = BrowserSelectionSummary()
+        for entry in entries where selection.contains(entry.id) {
+            summary.entries.append(entry)
+            if !entry.folder {
+                summary.fileCount += 1
+                summary.fileSize += entry.size
+            }
+        }
+        selectionSummary = summary
+    }
+
+    private func updateListing(resort: Bool) {
+        listingTask?.cancel()
+        listingID = UUID()
+        let requestID = listingID
+        let source = entries
+        let query = search
+        if resort {
+            sortingTask?.cancel()
+            let order = sortOrder
+            sortingTask = Task.detached(priority: .userInitiated) { source.sorted(using: order) }
+        }
+        guard let sortingTask else { return }
+        isUpdatingListing = true
+        listingTask = Task { [weak self] in
+            let sorted = await sortingTask.value
+            guard !Task.isCancelled else { return }
+            let worker = Task.detached(priority: .userInitiated) {
+                try Self.filterListing(source: source, sorted: sorted, query: query)
+            }
+            do {
+                let listing = try await withTaskCancellationHandler {
+                    try await worker.value
+                } onCancel: {
+                    worker.cancel()
+                }
+                guard !Task.isCancelled, let self, requestID == self.listingID else { return }
+                self.filtered = listing.filtered
+                self.displayedEntries = listing.displayed
+                self.isUpdatingListing = false
+                self.listingTask = nil
+            } catch is CancellationError {
+                // A newer query, sort order or directory owns the pending result.
+            } catch {
+                assertionFailure("Unexpected file-list filtering error: \(error)")
+            }
+        }
+    }
+
+    nonisolated private static func filterListing(source: [BrowserEntry], sorted: [BrowserEntry], query: String) throws
+        -> (filtered: [BrowserEntry], displayed: [BrowserEntry]) {
+        try Task.checkCancellation()
+        guard !query.isEmpty else { return (source, sorted) }
+        var matches: [BrowserEntry] = []
+        var matchingIDs: Set<String> = []
+        for entry in source {
+            try Task.checkCancellation()
+            if entry.name.localizedStandardContains(query) {
+                matches.append(entry)
+                matchingIDs.insert(entry.id)
+            }
+        }
+        let displayed = try sorted.filter { entry in
+            try Task.checkCancellation()
+            return matchingIDs.contains(entry.id)
+        }
+        return (matches, displayed)
+    }
 
     func canExtract(_ ids: Set<String>) -> Bool {
         let targets = entries.filter { ids.contains($0.id) }

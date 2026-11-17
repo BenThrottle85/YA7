@@ -5,7 +5,6 @@ struct BrowserView: View {
     @Bindable var model: BrowserModel
     @State private var sidebar = "Downloads"
     @State private var inspector = false
-    @State private var sortOrder = [KeyPathComparator(\BrowserEntry.name)]
     @State private var editingPath = false
     @State private var path = ""
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
@@ -56,23 +55,35 @@ struct BrowserView: View {
             VStack(spacing: 0) {
                 pathBar
                 Divider()
-                if model.isLoading {
-                    ProgressView(model.loadingMessage).frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else if model.filtered.isEmpty {
-                    ContentUnavailableView {
-                        Label(model.search.isEmpty ? (model.archiveURL == nil ? L10n.text("This folder is empty") : L10n.text("This archive is empty")) : L10n.text("No search results"),
-                              systemImage: model.search.isEmpty ? (model.archiveURL == nil ? "folder" : "archivebox") : "magnifyingglass")
-                    } description: {
-                        Text(model.search.isEmpty ? L10n.text("Open another folder or an archive.") : L10n.text("Try another search term or clear the filter."))
-                    } actions: {
-                        if model.search.isEmpty {
-                            Button(L10n.text("Open folder…"), systemImage: "folder", action: model.chooseFolder)
-                        } else {
-                            Button(L10n.text("Clear search"), systemImage: "xmark.circle") { model.search = "" }
-                        }
-                    }.frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else {
-                    fileTable
+                Group {
+                    if model.isLoading {
+                        ProgressView(model.loadingMessage).frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else if model.filtered.isEmpty {
+                        ContentUnavailableView {
+                            Label(model.search.isEmpty ? (model.archiveURL == nil ? L10n.text("This folder is empty") : L10n.text("This archive is empty")) : L10n.text("No search results"),
+                                  systemImage: model.search.isEmpty ? (model.archiveURL == nil ? "folder" : "archivebox") : "magnifyingglass")
+                        } description: {
+                            Text(model.search.isEmpty ? L10n.text("Open another folder or an archive.") : L10n.text("Try another search term or clear the filter."))
+                        } actions: {
+                            if model.search.isEmpty {
+                                Button(L10n.text("Open folder…"), systemImage: "folder", action: model.chooseFolder)
+                            } else {
+                                Button(L10n.text("Clear search"), systemImage: "xmark.circle") { model.search = "" }
+                            }
+                        }.frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else {
+                        fileTable
+                    }
+                }
+                .disabled(model.isUpdatingListing)
+                .overlay(alignment: .topTrailing) {
+                    if model.isUpdatingListing && !model.isLoading {
+                        ProgressView().controlSize(.small)
+                            .accessibilityLabel(L10n.text("Updating file list…"))
+                            .padding(10)
+                            .background(.regularMaterial, in: .rect(cornerRadius: 8))
+                            .padding(8)
+                    }
                 }
                 Divider()
                 footer
@@ -93,15 +104,15 @@ struct BrowserView: View {
                 }
                 ToolbarItem {
                     Button { model.dialog = .pack } label: { Label(L10n.text("Compress"), systemImage: "archivebox") }
-                        .disabled(model.selection.isEmpty || model.archiveURL != nil || model.busy || model.isLoading)
+                        .disabled(model.selection.isEmpty || model.archiveURL != nil || model.busy || model.isLoading || model.isUpdatingListing)
                 }
                 ToolbarItem {
                     Button { model.dialog = .extract } label: { Label(L10n.text("Extract"), systemImage: "folder.badge.plus") }
-                        .disabled(!model.canExtract || model.busy || model.isLoading)
+                        .disabled(!model.canExtract || model.busy || model.isLoading || model.isUpdatingListing)
                 }
                 ToolbarItem {
                     Button { model.dialog = .check } label: { Label(L10n.text("Test"), systemImage: "checkmark.shield") }
-                        .disabled(!model.canExtract || model.busy || model.isLoading)
+                        .disabled(!model.canExtract || model.busy || model.isLoading || model.isUpdatingListing)
                 }
                 ToolbarItem {
                     Menu {
@@ -118,9 +129,6 @@ struct BrowserView: View {
             }
         }
         .navigationSplitViewStyle(.balanced)
-        .onChange(of: model.search) { _, _ in
-            model.selection.formIntersection(model.filtered.map(\.id))
-        }
         .toolbar(removing: .sidebarToggle)
         .inspector(isPresented: $inspector) { InfoView(model: model).inspectorColumnWidth(min: 210, ideal: 240, max: 280) }
         .sheet(item: $model.dialog) { kind in
@@ -189,7 +197,7 @@ struct BrowserView: View {
     }
 
     private var fileTable: some View {
-        Table(model.filtered.sorted(using: sortOrder), selection: $model.selection, sortOrder: $sortOrder) {
+        Table(model.displayedEntries, selection: $model.selection, sortOrder: $model.sortOrder) {
             TableColumn(L10n.text("Name"), value: \.name) { entry in
                 HStack(spacing: 9) {
                     DocumentIcon(name: entry.name, isFolder: entry.folder, size: 17)
@@ -205,7 +213,7 @@ struct BrowserView: View {
         }
         .contextMenu(forSelectionType: String.self) { ids in
             let targets = model.entries.filter { ids.contains($0.id) }
-            let unavailable = targets.isEmpty || model.busy || model.isLoading
+            let unavailable = targets.isEmpty || model.busy || model.isLoading || model.isUpdatingListing
             Button(L10n.text("Open"), systemImage: "arrow.up.forward.square") {
                 if model.selectContext(ids), let entry = targets.first { model.open(entry) }
             }.disabled(unavailable)
@@ -244,9 +252,9 @@ struct BrowserView: View {
             if !model.selection.isEmpty {
                 Text("·").foregroundStyle(.tertiary)
                 Text(L10n.format("%@ selected", model.selection.count))
-                if model.selected.contains(where: { !$0.folder }) {
+                if model.selectionSummary.fileCount > 0 {
                     Text("·").foregroundStyle(.tertiary)
-                    Text(ByteCountFormatter.string(fromByteCount: model.selected.filter { !$0.folder }.reduce(0) { $0 + $1.size }, countStyle: .file)).monospacedDigit()
+                    Text(ByteCountFormatter.string(fromByteCount: model.selectionSummary.fileSize, countStyle: .file)).monospacedDigit()
                 }
             }
             Spacer()
@@ -504,9 +512,9 @@ struct InfoView: View {
                             infoRow(L10n.text("Size"), first.sizeLabel)
                             infoRow(L10n.text("Modified"), first.modified)
                         } else {
-                            infoRow(L10n.text("Files"), "\(selected.filter { !$0.folder }.count)")
-                            infoRow(L10n.text("Folders"), "\(selected.filter(\.folder).count)")
-                            infoRow(L10n.text("File size"), ByteCountFormatter.string(fromByteCount: selected.filter { !$0.folder }.reduce(0) { $0 + $1.size }, countStyle: .file))
+                            infoRow(L10n.text("Files"), "\(model.selectionSummary.fileCount)")
+                            infoRow(L10n.text("Folders"), "\(model.selectionSummary.folderCount)")
+                            infoRow(L10n.text("File size"), ByteCountFormatter.string(fromByteCount: model.selectionSummary.fileSize, countStyle: .file))
                         }
                     }
                     if selected.count == 1, let url = selected.first?.url {

@@ -77,9 +77,9 @@ struct YA7App: App {
                 Button(L10n.text("Settings…")) { model.dialog = .settings }.keyboardShortcut(",")
             }
             CommandMenu(L10n.text("Archive")) {
-                Button(L10n.text("Compress…")) { model.dialog = .pack }.disabled(model.selection.isEmpty || model.archiveURL != nil || model.busy || model.isLoading)
-                Button(L10n.text("Extract…")) { model.dialog = .extract }.disabled(!model.canExtract || model.busy || model.isLoading)
-                Button(L10n.text("Test…")) { model.dialog = .check }.disabled(!model.canExtract || model.busy || model.isLoading)
+                Button(L10n.text("Compress…")) { model.dialog = .pack }.disabled(model.selection.isEmpty || model.archiveURL != nil || model.busy || model.isLoading || model.isUpdatingListing)
+                Button(L10n.text("Extract…")) { model.dialog = .extract }.disabled(!model.canExtract || model.busy || model.isLoading || model.isUpdatingListing)
+                Button(L10n.text("Test…")) { model.dialog = .check }.disabled(!model.canExtract || model.busy || model.isLoading || model.isUpdatingListing)
             }
         }
     }

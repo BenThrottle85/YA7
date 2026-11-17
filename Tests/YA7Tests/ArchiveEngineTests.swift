@@ -398,10 +398,11 @@ final class LocalizationTests: XCTestCase {
 
     private func waitForLoad(_ model: BrowserModel) async throws {
         let deadline = ContinuousClock.now.advanced(by: .seconds(5))
-        while model.isLoading && ContinuousClock.now < deadline {
+        while (model.isLoading || model.isUpdatingListing) && ContinuousClock.now < deadline {
             try await Task.sleep(for: .milliseconds(5))
         }
         XCTAssertFalse(model.isLoading, "Navigation did not finish")
+        XCTAssertFalse(model.isUpdatingListing, "File list preparation did not finish")
     }
 
     func testContextUsesClickedEntriesInsteadOfPreviousSelection() {
@@ -565,4 +566,109 @@ final class LocalizationTests: XCTestCase {
         XCTAssertEqual(model.entries.map(\.name), [file.lastPathComponent])
         XCTAssertNil(model.error)
     }
+    func testPreparedListingMatchesFilteringAndEverySortColumn() async throws {
+        let model = BrowserModel(demo: true)
+        let items = [
+            BrowserEntry(id: "b", name: "Beta.txt", size: 30, kind: "Text", modified: "2026-03", symbol: "doc", folder: false),
+            BrowserEntry(id: "d", name: "Documents", size: 900, kind: "Folder", modified: "2026-01", symbol: "folder", folder: true),
+            BrowserEntry(id: "a", name: "Alpha.txt", size: 10, kind: "Text", modified: "2026-02", symbol: "doc", folder: false)
+        ]
+        model.entries = items
+        model.selection = ["b", "d"]
+        for order in [[KeyPathComparator(\BrowserEntry.name)],
+                      [KeyPathComparator(\BrowserEntry.name, order: .reverse)],
+                      [KeyPathComparator(\BrowserEntry.size)],
+                      [KeyPathComparator(\BrowserEntry.kind), KeyPathComparator(\BrowserEntry.name)],
+                      [KeyPathComparator(\BrowserEntry.modified)]] {
+            model.sortOrder = order
+            for query in ["", "TXT", "Documents", "no matches"] {
+                model.search = query
+                try await waitForLoad(model)
+                let expected = items.filter { query.isEmpty || $0.name.localizedStandardContains(query) }
+                XCTAssertEqual(model.filtered, expected)
+                XCTAssertEqual(model.displayedEntries, expected.sorted(using: order))
+            }
+        }
+    }
+
+    func testSelectionSummaryUpdatesOnceInputsChangeAndExcludesFolderSizes() async throws {
+        let model = BrowserModel(demo: true)
+        let items = [
+            BrowserEntry(id: "b", name: "Beta.txt", size: 30, kind: "Text", modified: "", symbol: "doc", folder: false),
+            BrowserEntry(id: "d", name: "Documents", size: 900, kind: "Folder", modified: "", symbol: "folder", folder: true),
+            BrowserEntry(id: "a", name: "Alpha.txt", size: 10, kind: "Text", modified: "", symbol: "doc", folder: false)
+        ]
+        model.entries = items
+        model.selection = ["a", "b", "d"]
+        try await waitForLoad(model)
+        XCTAssertEqual(model.selected, items)
+        XCTAssertEqual(model.selectionSummary.fileCount, 2)
+        XCTAssertEqual(model.selectionSummary.folderCount, 1)
+        XCTAssertEqual(model.selectionSummary.fileSize, 40)
+        let displayed = model.displayedEntries
+        model.selection = ["a", "d", "missing"]
+        XCTAssertEqual(model.selected.map(\.id), ["d", "a"])
+        XCTAssertEqual(model.selectionSummary.fileCount, 1)
+        XCTAssertEqual(model.selectionSummary.folderCount, 1)
+        XCTAssertEqual(model.selectionSummary.fileSize, 10)
+        XCTAssertFalse(model.isUpdatingListing, "Selecting rows must not sort or filter the directory again")
+        model.dialog = .info
+        model.error = "Unrelated state"
+        model.search = model.search
+        model.sortOrder = model.sortOrder
+        XCTAssertFalse(model.isUpdatingListing)
+        XCTAssertEqual(model.displayedEntries, displayed)
+        model.entries = [items[0]]
+        XCTAssertTrue(model.selected.isEmpty)
+        XCTAssertEqual(model.selectionSummary.fileSize, 0)
+        try await waitForLoad(model)
+        XCTAssertEqual(model.displayedEntries, [items[0]])
+    }
+
+    func testSearchPrunesSelectionAndRetainsOriginalEntryOrder() async throws {
+        let model = BrowserModel(demo: true)
+        let items = [entry(URL(fileURLWithPath: "/test/Zebra.txt")),
+                     entry(URL(fileURLWithPath: "/test/Alpha.txt")),
+                     entry(URL(fileURLWithPath: "/test/Other.png"))]
+        model.entries = items
+        model.selection = Set(items.map(\.id))
+        try await waitForLoad(model)
+        model.search = ".TXT"
+        XCTAssertEqual(model.selection, Set(items.prefix(2).map(\.id)))
+        XCTAssertEqual(model.selected, Array(items.prefix(2)))
+        try await waitForLoad(model)
+        XCTAssertEqual(model.filtered, Array(items.prefix(2)))
+        XCTAssertEqual(model.displayedEntries.map(\.name), ["Alpha.txt", "Zebra.txt"])
+        model.search = ""
+        try await waitForLoad(model)
+        XCTAssertEqual(model.filtered, items)
+        XCTAssertEqual(model.selected, Array(items.prefix(2)), "Clearing search must not reselect hidden items")
+    }
+
+    func testRapidEntrySearchAndSortChangesNeverPublishStaleListing() async throws {
+        let model = BrowserModel(demo: true)
+        model.entries = (0..<2000).reversed().map { index in
+            entry(URL(fileURLWithPath: "/old/file-\(index).txt"))
+        }
+        model.search = "file-1"
+        model.sortOrder = [KeyPathComparator(\BrowserEntry.name, order: .reverse)]
+        model.search = "file-2"
+        let current = [entry(URL(fileURLWithPath: "/new/Zebra.txt")),
+                       entry(URL(fileURLWithPath: "/new/Alpha.txt")),
+                       entry(URL(fileURLWithPath: "/new/Other.png"))]
+        model.entries = current
+        model.search = "png"
+        model.sortOrder = [KeyPathComparator(\BrowserEntry.name)]
+        model.search = ".txt"
+        try await waitForLoad(model)
+        XCTAssertEqual(model.filtered, Array(current.prefix(2)))
+        XCTAssertEqual(model.displayedEntries.map(\.name), ["Alpha.txt", "Zebra.txt"])
+        try await Task.sleep(for: .milliseconds(30))
+        XCTAssertEqual(model.filtered, Array(current.prefix(2)))
+        model.entries = []
+        try await waitForLoad(model)
+        XCTAssertTrue(model.filtered.isEmpty)
+        XCTAssertTrue(model.displayedEntries.isEmpty)
+    }
+
 }
