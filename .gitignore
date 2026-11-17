@@ -1,20 +1,18 @@
+# macOS and local Xcode settings
 .DS_Store
-.build/
-.swiftpm/
 xcuserdata/
-*.xcuserstate
-DerivedData/
 
-# Local builds, release artifacts and credentials
-.ci-work/
-build/
-dist/
-work/
+# SwiftPM, Xcode builds and release output
+/.build/
+/.swiftpm/
+/DerivedData/
+/dist/
 *.xcresult/
 *.dSYM/
 /*.app/
 /*.dmg
-/*.zip
+
+# Local credentials and private signing keys
 .env
 .env.*
 !.env.example
@@ -22,5 +20,3 @@ work/
 *.pfx
 *.p8
 *.key
-*.cer
-*.mobileprovision
