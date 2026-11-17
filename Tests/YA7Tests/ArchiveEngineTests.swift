@@ -383,3 +383,186 @@ final class LocalizationTests: XCTestCase {
         }
     }
 }
+
+@MainActor final class BrowserModelTests: XCTestCase {
+    private func entry(_ url: URL, folder: Bool = false) -> BrowserEntry {
+        BrowserEntry(id: url.path, name: url.lastPathComponent, size: 0, kind: "File",
+                     modified: "", symbol: "doc", folder: folder, url: url)
+    }
+
+    private func fixture() throws -> URL {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("YA7-Browser-" + UUID().uuidString)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        return root
+    }
+
+    private func waitForLoad(_ model: BrowserModel) async throws {
+        let deadline = ContinuousClock.now.advanced(by: .seconds(5))
+        while model.isLoading && ContinuousClock.now < deadline {
+            try await Task.sleep(for: .milliseconds(5))
+        }
+        XCTAssertFalse(model.isLoading, "Navigation did not finish")
+    }
+
+    func testContextUsesClickedEntriesInsteadOfPreviousSelection() {
+        let first = URL(fileURLWithPath: "/example/first.txt")
+        let clicked = URL(fileURLWithPath: "/example/clicked.zip")
+        let other = URL(fileURLWithPath: "/example/other.txt")
+        let model = BrowserModel(demo: true)
+        model.entries = [entry(first), entry(clicked), entry(other)]
+        model.selection = [first.path]
+        XCTAssertTrue(model.canExtract([clicked.path]))
+        XCTAssertFalse(model.canExtract([first.path]))
+        XCTAssertTrue(model.selectContext([clicked.path]))
+        XCTAssertEqual(model.currentArchive, clicked)
+        XCTAssertEqual(model.selected.map(\.url), [clicked])
+        XCTAssertTrue(model.selectContext([first.path, other.path]))
+        XCTAssertEqual(Set(model.selected.compactMap(\.url)), [first, other])
+        XCTAssertFalse(model.canExtract(model.selection))
+        XCTAssertFalse(model.selectContext([]))
+        XCTAssertFalse(model.selectContext(["missing"]))
+        XCTAssertEqual(model.selection, [first.path, other.path])
+        model.busy = true
+        XCTAssertFalse(model.selectContext([clicked.path]))
+        model.busy = false
+        model.archiveURL = clicked
+        XCTAssertTrue(model.canExtract, "Entire-archive extraction requires no inner selection")
+        model.selection = []
+        XCTAssertTrue(model.canExtract)
+        XCTAssertFalse(model.canExtract([]), "Empty-area context menu must not use a previous selection")
+    }
+
+    func testContextCompressionContainsOnlyClickedFiles() async throws {
+        let root = try fixture()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let first = root.appendingPathComponent("previous.txt"), clicked = root.appendingPathComponent("clicked.txt")
+        try Data("previous".utf8).write(to: first)
+        try Data("clicked".utf8).write(to: clicked)
+        let model = BrowserModel(demo: true)
+        model.entries = [entry(first), entry(clicked)]
+        model.selection = [first.path]
+        XCTAssertTrue(model.selectContext([clicked.path]))
+        let target = root.appendingPathComponent("context.zip")
+        _ = try await model.engine.create(sources: model.selected.compactMap(\.url), target: target,
+                                          format: "zip", level: "5", password: "")
+        let contents = try await model.engine.list(target)
+        XCTAssertEqual(contents.map(\.name), [clicked.lastPathComponent])
+    }
+
+    func testSlowDirectoryLoadLeavesMainActorFreeAndLatestRequestWins() async throws {
+        let slow = URL(fileURLWithPath: "/slow"), fast = URL(fileURLWithPath: "/fast")
+        let started = expectation(description: "Slow background read started")
+        let ended = expectation(description: "Slow background read ended")
+        let release = DispatchSemaphore(value: 0)
+        defer { release.signal() }
+        let slowEntry = entry(slow.appendingPathComponent("stale.txt"))
+        let fastEntry = entry(fast.appendingPathComponent("current.txt"))
+        let model = BrowserModel(demo: true, directoryLoader: { url in
+            XCTAssertFalse(Thread.isMainThread)
+            if url == slow {
+                started.fulfill()
+                _ = release.wait(timeout: .now() + 5)
+                ended.fulfill()
+                return [slowEntry] // Deliberately ignore cancellation to test stale-result protection.
+            }
+            return [fastEntry]
+        })
+        model.browse(slow)
+        await fulfillment(of: [started], timeout: 3)
+        XCTAssertTrue(Thread.isMainThread)
+        XCTAssertTrue(model.isLoading)
+        model.search = "Main actor remains responsive"
+        XCTAssertFalse(model.selectContext(model.selection))
+        model.browse(fast)
+        try await waitForLoad(model)
+        XCTAssertEqual(model.location, fast)
+        release.signal()
+        await fulfillment(of: [ended], timeout: 3)
+        try await Task.sleep(for: .milliseconds(30))
+        XCTAssertEqual(model.location, fast)
+        XCTAssertEqual(model.entries, [fastEntry])
+        XCTAssertNil(model.error)
+        XCTAssertFalse(model.isLoading)
+    }
+
+    func testLargeDirectoryMetadataAndNavigationHistory() async throws {
+        let root = try fixture()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let second = root.appendingPathComponent("Second", isDirectory: true)
+        try FileManager.default.createDirectory(at: second, withIntermediateDirectories: false)
+        try Data().write(to: root.appendingPathComponent(".hidden"))
+        for index in 0..<1000 {
+            try Data("item".utf8).write(to: root.appendingPathComponent("file-\(index).txt"))
+        }
+        let model = BrowserModel(demo: true)
+        model.browse(root, remember: false)
+        try await waitForLoad(model)
+        XCTAssertNil(model.error)
+        XCTAssertEqual(model.entries.count, 1001)
+        XCTAssertTrue(try XCTUnwrap(model.entries.first).folder)
+        XCTAssertEqual(model.entries.first?.url?.resolvingSymlinksInPath(), second.resolvingSymlinksInPath())
+        XCTAssertFalse(model.entries.contains { $0.name == ".hidden" })
+        let file = try XCTUnwrap(model.entries.first { $0.name == "file-0.txt" })
+        XCTAssertEqual(file.size, 4)
+        XCTAssertFalse(file.modified.isEmpty)
+        model.selection = [file.id]
+        model.search = "file"
+        model.browse(second)
+        try await waitForLoad(model)
+        XCTAssertEqual(model.history, [root])
+        XCTAssertTrue(model.selection.isEmpty)
+        XCTAssertEqual(model.search, "")
+        model.back()
+        try await waitForLoad(model)
+        XCTAssertEqual(model.location, root)
+        model.forward()
+        try await waitForLoad(model)
+        XCTAssertEqual(model.location, second)
+    }
+
+    func testFailedDirectoryLoadPreservesDisplayedFolderAndSelection() async throws {
+        let root = try fixture()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let file = root.appendingPathComponent("original.txt")
+        try Data().write(to: file)
+        let model = BrowserModel(demo: true)
+        model.browse(root, remember: false)
+        try await waitForLoad(model)
+        model.selection = [file.path]
+        model.browse(root.appendingPathComponent("does-not-exist"))
+        try await waitForLoad(model)
+        XCTAssertNotNil(model.error)
+        XCTAssertEqual(model.location, root)
+        XCTAssertEqual(model.selection, [file.path])
+        XCTAssertTrue(model.history.isEmpty)
+    }
+
+    func testSlowFolderCannotReplaceNewerArchiveNavigation() async throws {
+        let root = try fixture()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let file = root.appendingPathComponent("inside.txt")
+        try Data("archive content".utf8).write(to: file)
+        let archive = root.appendingPathComponent("archive.zip")
+        _ = try await ArchiveEngine().create(sources: [file], target: archive, format: "zip", level: "5", password: "")
+        let started = expectation(description: "Folder read started")
+        let ended = expectation(description: "Folder read ended")
+        let release = DispatchSemaphore(value: 0)
+        defer { release.signal() }
+        let model = BrowserModel(demo: true, directoryLoader: { _ in
+            started.fulfill()
+            _ = release.wait(timeout: .now() + 5)
+            ended.fulfill()
+            return []
+        })
+        model.browse(root)
+        await fulfillment(of: [started], timeout: 3)
+        model.openArchive(archive)
+        try await waitForLoad(model)
+        release.signal()
+        await fulfillment(of: [ended], timeout: 3)
+        try await Task.sleep(for: .milliseconds(30))
+        XCTAssertEqual(model.archiveURL, archive)
+        XCTAssertEqual(model.entries.map(\.name), [file.lastPathComponent])
+        XCTAssertNil(model.error)
+    }
+}

@@ -56,8 +56,8 @@ struct BrowserView: View {
             VStack(spacing: 0) {
                 pathBar
                 Divider()
-                if model.busy && model.dialog != .progress {
-                    ProgressView(L10n.text("Reading archive…")).frame(maxWidth: .infinity, maxHeight: .infinity)
+                if model.isLoading {
+                    ProgressView(model.loadingMessage).frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else if model.filtered.isEmpty {
                     ContentUnavailableView {
                         Label(model.search.isEmpty ? (model.archiveURL == nil ? L10n.text("This folder is empty") : L10n.text("This archive is empty")) : L10n.text("No search results"),
@@ -93,15 +93,15 @@ struct BrowserView: View {
                 }
                 ToolbarItem {
                     Button { model.dialog = .pack } label: { Label(L10n.text("Compress"), systemImage: "archivebox") }
-                        .disabled(model.selection.isEmpty || model.archiveURL != nil || model.busy)
+                        .disabled(model.selection.isEmpty || model.archiveURL != nil || model.busy || model.isLoading)
                 }
                 ToolbarItem {
                     Button { model.dialog = .extract } label: { Label(L10n.text("Extract"), systemImage: "folder.badge.plus") }
-                        .disabled(!model.canExtract || model.busy)
+                        .disabled(!model.canExtract || model.busy || model.isLoading)
                 }
                 ToolbarItem {
                     Button { model.dialog = .check } label: { Label(L10n.text("Test"), systemImage: "checkmark.shield") }
-                        .disabled(!model.canExtract || model.busy)
+                        .disabled(!model.canExtract || model.busy || model.isLoading)
                 }
                 ToolbarItem {
                     Menu {
@@ -204,15 +204,30 @@ struct BrowserView: View {
             TableColumn(L10n.text("Modified"), value: \.modified).width(min: 125, ideal: 145)
         }
         .contextMenu(forSelectionType: String.self) { ids in
-            Button(L10n.text("Open"), systemImage: "arrow.up.forward.square") { if let entry = model.entries.first(where: { ids.contains($0.id) }) { model.open(entry) } }
+            let targets = model.entries.filter { ids.contains($0.id) }
+            let unavailable = targets.isEmpty || model.busy || model.isLoading
+            Button(L10n.text("Open"), systemImage: "arrow.up.forward.square") {
+                if model.selectContext(ids), let entry = targets.first { model.open(entry) }
+            }.disabled(unavailable)
             Divider()
-            Button(L10n.text("Compress…"), systemImage: "archivebox") { model.dialog = .pack }.disabled(model.archiveURL != nil)
-            Button(L10n.text("Extract…"), systemImage: "folder.badge.plus") { model.dialog = .extract }.disabled(!model.canExtract)
-            Button(L10n.text("Test…"), systemImage: "checkmark.shield") { model.dialog = .check }.disabled(!model.canExtract)
+            Button(L10n.text("Compress…"), systemImage: "archivebox") {
+                if model.selectContext(ids) { model.dialog = .pack }
+            }.disabled(unavailable || model.archiveURL != nil)
+            Button(L10n.text("Extract…"), systemImage: "folder.badge.plus") {
+                if model.selectContext(ids) { model.dialog = .extract }
+            }.disabled(unavailable || !model.canExtract(ids))
+            Button(L10n.text("Test…"), systemImage: "checkmark.shield") {
+                if model.selectContext(ids) { model.dialog = .check }
+            }.disabled(unavailable || !model.canExtract(ids))
             Divider()
-            Button(L10n.text("Information"), systemImage: "info.circle") { inspector = true }
-            if let url = model.selected.first?.url {
-                Button(L10n.text("Show in Finder"), systemImage: "folder") { NSWorkspace.shared.activateFileViewerSelecting([url]) }
+            Button(L10n.text("Information"), systemImage: "info.circle") {
+                if model.selectContext(ids) { inspector = true }
+            }.disabled(unavailable)
+            let urls = targets.compactMap(\.url)
+            if !urls.isEmpty {
+                Button(L10n.text("Show in Finder"), systemImage: "folder") {
+                    NSWorkspace.shared.activateFileViewerSelecting(urls)
+                }.disabled(unavailable)
             }
         } primaryAction: { ids in
             if let entry = model.entries.first(where: { ids.contains($0.id) }) { model.open(entry) }

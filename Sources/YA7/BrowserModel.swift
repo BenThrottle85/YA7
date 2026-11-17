@@ -21,6 +21,11 @@ final class BrowserModel {
     var error: String?
     var demo: Bool
     var busy = false
+    private(set) var isLoading = false
+    private(set) var loadingMessage = ""
+    @ObservationIgnored private var navigationTask: Task<Void, Never>?
+    @ObservationIgnored private var navigationID = UUID()
+    @ObservationIgnored private let directoryLoader: @Sendable (URL) throws -> [BrowserEntry]
     var taskTitle = ""
     var taskDetails = ""
     var result: String?
@@ -28,8 +33,10 @@ final class BrowserModel {
     var task: Task<Void, Never>?
     let engine = ArchiveEngine()
 
-    init(demo: Bool, archive: Bool = false) {
+    init(demo: Bool, archive: Bool = false,
+         directoryLoader: @escaping @Sendable (URL) throws -> [BrowserEntry] = { try BrowserModel.readDirectory($0) }) {
         self.demo = demo
+        self.directoryLoader = directoryLoader
         if demo {
             entries = archive ? BrowserEntry.archiveSamples : BrowserEntry.samples
             selection = archive ? ["brief"] : ["atlas"]
@@ -42,44 +49,94 @@ final class BrowserModel {
     var title: String { archiveURL?.lastPathComponent ?? location?.lastPathComponent ?? "Downloads" }
     var selected: [BrowserEntry] { entries.filter { selection.contains($0.id) } }
     var filtered: [BrowserEntry] { entries.filter { search.isEmpty || $0.name.localizedStandardContains(search) } }
-    var canExtract: Bool { archiveURL != nil || (selected.count == 1 && selected[0].archive) }
+    var canExtract: Bool { archiveURL != nil || canExtract(selection) }
+
+    func canExtract(_ ids: Set<String>) -> Bool {
+        let targets = entries.filter { ids.contains($0.id) }
+        return !targets.isEmpty && (archiveURL != nil || (targets.count == 1 && targets[0].archive))
+    }
+
+    @discardableResult
+    func selectContext(_ ids: Set<String>) -> Bool {
+        guard !busy, !isLoading else { return false }
+        let targets = Set(entries.filter { ids.contains($0.id) }.map(\.id))
+        guard !targets.isEmpty else { return false }
+        selection = targets
+        return true
+    }
     var currentArchive: URL? { archiveURL ?? selected.first(where: \.archive)?.url }
 
     func browse(_ url: URL, remember: Bool = true) {
-        do {
-            let keys: Set<URLResourceKey> = [.isDirectoryKey, .fileSizeKey, .contentModificationDateKey, .localizedTypeDescriptionKey]
-            let urls = try FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: Array(keys), options: [.skipsHiddenFiles])
-            let formatter = DateFormatter()
-            formatter.locale = .autoupdatingCurrent
-            formatter.dateStyle = .short
-            formatter.timeStyle = .short
-            let newEntries = try urls.map { file -> BrowserEntry in
-                let values = try file.resourceValues(forKeys: keys)
-                let folder = values.isDirectory ?? false
-                let zipped = ArchiveFormat.recognizing(file.lastPathComponent) != nil
-                return BrowserEntry(id: file.path, name: file.lastPathComponent,
-                    size: Int64(values.fileSize ?? 0), kind: values.localizedTypeDescription ?? (folder ? L10n.text("Folder") : L10n.text("File")),
-                    modified: values.contentModificationDate.map(formatter.string) ?? "—",
-                    symbol: folder ? "folder.fill" : zipped ? "doc.zipper" : "doc", folder: folder, url: file)
-            }.sorted(by: Self.foldersFirst)
-            if remember, let location { history.append(location); forwardHistory = [] }
-            location = url; archiveURL = nil; entries = newEntries; selection = []; search = ""; demo = false
-        } catch { self.error = error.localizedDescription }
+        guard !busy else { return }
+        let requestID = beginNavigation(message: L10n.text("Reading folder…"))
+        let loader = directoryLoader
+        let worker = Task.detached(priority: .userInitiated) { try loader(url) }
+        navigationTask = Task {
+            do {
+                let newEntries = try await withTaskCancellationHandler {
+                    try await worker.value
+                } onCancel: {
+                    worker.cancel()
+                }
+                try Task.checkCancellation()
+                guard requestID == navigationID else { return }
+                if remember, let location { history.append(location); forwardHistory = [] }
+                location = url; archiveURL = nil
+                entries = newEntries; selection = []; search = ""; demo = false
+            } catch {
+                guard requestID == navigationID else { return }
+                if !(error is CancellationError) { self.error = error.localizedDescription }
+            }
+            guard requestID == navigationID else { return }
+            isLoading = false
+            navigationTask = nil
+        }
+    }
+
+    private func beginNavigation(message: String) -> UUID {
+        navigationTask?.cancel()
+        navigationID = UUID()
+        loadingMessage = message
+        isLoading = true
+        return navigationID
+    }
+
+    nonisolated static func readDirectory(_ url: URL) throws -> [BrowserEntry] {
+        try Task.checkCancellation()
+        let keys: Set<URLResourceKey> = [.isDirectoryKey, .fileSizeKey, .contentModificationDateKey, .localizedTypeDescriptionKey]
+        let urls = try FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: Array(keys), options: [.skipsHiddenFiles])
+        let formatter = DateFormatter()
+        formatter.locale = .autoupdatingCurrent
+        formatter.dateStyle = .short
+        formatter.timeStyle = .short
+        let newEntries = try urls.map { file -> BrowserEntry in
+            try Task.checkCancellation()
+            let values = try file.resourceValues(forKeys: keys)
+            let folder = values.isDirectory ?? false
+            let zipped = ArchiveFormat.recognizing(file.lastPathComponent) != nil
+            return BrowserEntry(id: file.path, name: file.lastPathComponent,
+                size: Int64(values.fileSize ?? 0), kind: values.localizedTypeDescription ?? (folder ? L10n.text("Folder") : L10n.text("File")),
+                modified: values.contentModificationDate.map(formatter.string) ?? "—",
+                symbol: folder ? "folder.fill" : zipped ? "doc.zipper" : "doc", folder: folder, url: file)
+        }
+        try Task.checkCancellation()
+        return newEntries.sorted(by: Self.foldersFirst)
     }
 
     func back() {
-        guard let url = history.popLast() else { return }
+        guard !busy, let url = history.popLast() else { return }
         if let location { forwardHistory.append(location) }
         browse(url, remember: false)
     }
 
     func forward() {
-        guard let url = forwardHistory.popLast() else { return }
+        guard !busy, let url = forwardHistory.popLast() else { return }
         if let location { history.append(location) }
         browse(url, remember: false)
     }
 
     func parent() {
+        guard !busy else { return }
         if archiveURL != nil {
             if !demo, !archivePath.isEmpty {
                 let parent = (archivePath as NSString).deletingLastPathComponent
@@ -123,14 +180,22 @@ final class BrowserModel {
     }
 
     func openArchive(_ url: URL) {
-        busy = true
-        Task {
+        guard !busy else { return }
+        let requestID = beginNavigation(message: L10n.text("Reading archive…"))
+        navigationTask = Task {
             do {
                 let items = try await engine.list(url)
+                try Task.checkCancellation()
+                guard requestID == navigationID else { return }
                 archiveURL = url; archiveEntries = items; demo = false
                 showArchiveLevel("")
-            } catch { self.error = error.localizedDescription }
-            busy = false
+            } catch {
+                guard requestID == navigationID else { return }
+                if !(error is CancellationError) { self.error = error.localizedDescription }
+            }
+            guard requestID == navigationID else { return }
+            isLoading = false
+            navigationTask = nil
         }
     }
 
@@ -155,7 +220,7 @@ final class BrowserModel {
         selection = []; search = ""
     }
 
-    private static func foldersFirst(_ first: BrowserEntry, _ second: BrowserEntry) -> Bool {
+    nonisolated private static func foldersFirst(_ first: BrowserEntry, _ second: BrowserEntry) -> Bool {
         if first.folder != second.folder { return first.folder }
         return first.name.localizedStandardCompare(second.name) == .orderedAscending
     }
@@ -165,7 +230,7 @@ final class BrowserModel {
     }
 
     func perform(title: String, operation: @escaping () async throws -> String) {
-        guard !busy else { return }
+        guard !busy, !isLoading else { return }
         busy = true; taskTitle = title; taskDetails = L10n.text("7-Zip is working…"); result = nil; failed = false; dialog = .progress
         task = Task {
             do { result = try await operation() }

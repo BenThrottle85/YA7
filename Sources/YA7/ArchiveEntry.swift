@@ -1,6 +1,6 @@
 import Foundation
 
-struct BrowserEntry: Identifiable, Hashable {
+struct BrowserEntry: Identifiable, Hashable, Sendable {
     let id: String
     let name: String
     let size: Int64
