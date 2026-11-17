@@ -57,7 +57,7 @@ def configuration_list(label, settings):
 files = {}
 source_paths = sorted(str(p.relative_to(ROOT)) for p in (ROOT/'Sources/YA7').glob('*.swift'))
 source_paths += ['Extensions/QuickActionViewController.swift', 'Tests/YA7Tests/ArchiveEngineTests.swift']
-other_paths = ['Bundle/Info.plist', 'Bundle/Credits.rtf', 'Bundle/YA7.icns', 'Bundle/QuickAction.entitlements', 'Bundle/Helper.entitlements']
+other_paths = ['Bundle/Info.plist', 'Bundle/YA7.icns', 'Bundle/QuickAction.entitlements', 'Bundle/Helper.entitlements']
 other_paths += [f'Bundle/{name}-Info.plist' for name in ('PackAction', 'ExtractAction', 'CheckAction')]
 other_paths += ['Bundle/ActionIcons.xcassets']
 other_paths += sorted(str(p.relative_to(ROOT)) for parent in [ROOT/'Sources/YA7/Resources', ROOT/'Bundle/Localization'] for p in parent.glob('*/*') if p.is_file())

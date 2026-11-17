@@ -1,4 +1,4 @@
-<p align="center"><img src="docs/images/icon.png" width="128" alt="YA7 icon"></p>
+<p align="center"><img src="Bundle/YA7.iconset/icon_256x256.png" width="128" alt="YA7 icon"></p>
 
 # YA7
 

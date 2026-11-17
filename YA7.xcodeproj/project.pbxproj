@@ -89,12 +89,6 @@
 			"sourceTree" = "<group>";
 			"lastKnownFileType" = "text.plist.xml";
 		};
-		"C1258A25936E337DF2731E0B" = {
-			"isa" = "PBXFileReference";
-			"path" = "Bundle/Credits.rtf";
-			"sourceTree" = "<group>";
-			"lastKnownFileType" = "text";
-		};
 		"A75D3F1F979C219277ED7CD0" = {
 			"isa" = "PBXFileReference";
 			"path" = "Bundle/YA7.icns";
@@ -330,7 +324,6 @@
 			"name" = "Konfiguration und Ressourcen";
 			"children" = (
 				"C85D3B25845FE7C670BE6E68",
-				"C1258A25936E337DF2731E0B",
 				"A75D3F1F979C219277ED7CD0",
 				"408C70A11DB9D825606B11CC",
 				"7A4543A9D78AE0ACB2EE9463",
