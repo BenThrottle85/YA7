@@ -39,11 +39,36 @@ struct SevenZipUpdateNotice: View {
     @State private var updates = SevenZipUpdates.shared
     var body: some View {
         if let release = updates.availableUpdate {
-            HStack {
-                Label(L10n.format("7-Zip %@ is available.", release.version), systemImage: "info.circle")
-                Spacer()
-                Link(L10n.text("View release"), destination: release.url)
-            }.font(.system(size: 12)).padding(12).background(.bar)
+            VStack(spacing: 0) {
+                Divider()
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 16) {
+                        message(for: release).fixedSize()
+                        Spacer(minLength: 0)
+                        releaseLink(for: release).fixedSize()
+                    }
+                    VStack(alignment: .leading, spacing: 8) {
+                        message(for: release)
+                        releaseLink(for: release)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+            }
+            .font(.system(size: 12))
+            .fixedSize(horizontal: false, vertical: true)
+            .background(.bar)
         }
+    }
+
+    private func message(for release: SevenZipRelease) -> some View {
+        Label(L10n.format("7-Zip %@ is available.", release.version), systemImage: "info.circle")
+            .fixedSize(horizontal: false, vertical: true)
+    }
+
+    private func releaseLink(for release: SevenZipRelease) -> some View {
+        Link(L10n.text("View release"), destination: release.url)
+            .fixedSize(horizontal: false, vertical: true)
     }
 }

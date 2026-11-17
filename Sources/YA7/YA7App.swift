@@ -48,8 +48,12 @@ struct YA7App: App {
                 case "check": CheckView(model: model, quickAction: true)
                 case "progress": JobView(model: model, preview: true)
                 case "settings": PreferencesView()
-                default: BrowserView(model: model).frame(minWidth: 800, minHeight: 480)
-                    .safeAreaInset(edge: .bottom) { SevenZipUpdateNotice() }
+                default:
+                    VStack(spacing: 0) {
+                        BrowserView(model: model)
+                        SevenZipUpdateNotice()
+                    }
+                    .frame(minWidth: 800, minHeight: 480)
                 }
             }
             .preferredColorScheme(LaunchOptions.rendering ? (LaunchOptions.dark ? .dark : .light) : nil)
