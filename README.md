@@ -10,7 +10,7 @@ A native SwiftUI/AppKit archive utility with a bundled 7-Zip engine and Finder Q
 
 ## Install
 
-Download [YA7-0.2.9-macOS.dmg](https://github.com/BenThrottle85/YA7/releases/download/v0.2.9/YA7-0.2.9-macOS.dmg) from [GitHub Releases](https://github.com/BenThrottle85/YA7/releases), open it and drag **YA7.app** to **Applications**. Quit a running copy before replacing it, then launch YA7 from Applications. macOS may ask you to confirm the first launch.
+Download [YA7-0.2.10-macOS.dmg](https://github.com/BenThrottle85/YA7/releases/download/v0.2.10/YA7-0.2.10-macOS.dmg) from [GitHub Releases](https://github.com/BenThrottle85/YA7/releases), open it and drag **YA7.app** to **Applications**. Quit a running copy before replacing it, then launch YA7 from Applications. macOS may ask you to confirm the first launch.
 
 In Finder, enable **YA7: Compress**, **YA7: Extract** and **YA7: Test** (German: Packen, Entpacken, Prüfen) under **Quick Actions → Customize**. Choose **Done** (German: Fertig) after a successful action so Finder can import the result. YA7 supports **English and German**, follows your macOS app-language preferences, and falls back to English.
 
@@ -56,14 +56,16 @@ Local builds are not notarized. See [release instructions](docs/RELEASING.md) an
 
 ## Status and limitations
 
-YA7 is an early release. Version 0.2.9 passed 23 local Xcode tests, a Universal release build and Apple notarization. This is not a claim of exhaustive compatibility or a security audit. GitHub Actions is configured only for standard macOS runners in this public repository, which are currently free under GitHub's public-repository rules. Jobs skip private repositories. No larger runners, artifact/cache uploads or paid add-ons are configured. See [Actions](https://github.com/BenThrottle85/YA7/actions) for current hosted verification. See [GitHub Actions billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions).
+YA7 is an early release. Version 0.2.10 passed 33 local Xcode tests, a Universal release build and Apple notarization. This is not a claim of exhaustive compatibility or a security audit. GitHub Actions is configured only for standard macOS runners in this public repository, which are currently free under GitHub's public-repository rules. Jobs skip private repositories. No larger runners, artifact/cache uploads or paid add-ons are configured. See [Actions](https://github.com/BenThrottle85/YA7/actions) for current hosted verification. See [GitHub Actions billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions).
 
-A real Finder compression test passed on the maintainer's Mac: after Create → Done, the 7z archive appeared beside the original, passed the integrity check and contained byte-identical content. The user performed the Finder clicks; file and archive checks were automated. Intel/macOS 14 runtime testing and a fresh installation on a second Mac remain outstanding.
+A real Finder compression test with version 0.2.9 passed on the maintainer's Mac: after Create → Done, the 7z archive appeared beside the original, passed the integrity check and contained byte-identical content. The user performed the Finder clicks; file and archive checks were automated. Intel/macOS 14 runtime testing and a fresh installation on a second Mac remain outstanding.
 
 No editing existing archives, multipart archives, arbitrary recursive nested archives, encrypted filenames or Finder double-click association yet. ISO/DMG images are read as archives rather than mounted; some variants/encryption methods are unsupported. Progress is currently indeterminate. Files containing links are rejected on extraction.
 
-Known follow-ups: overlapping archive reads may publish stale navigation results; successful Finder outputs remain temporarily available for the host to import, with their cleanup lifecycle still to be improved.
+Known follow-up: successful Finder outputs remain temporarily available for the host to import, with their cleanup lifecycle still to be improved.
 
 ## License and attribution
 
 YA7's own source code is **LGPL-2.1-or-later**. [LICENSING.md](LICENSING.md) defines its scope and third-party exceptions. 7-Zip by Igor Pavlov retains its LGPL/BSD/unRAR terms; original notices and matching source are included. Apple-provided interface symbols retain Apple's terms. YA7 is an independent interface, not an official 7-Zip or Apple product.
+
+Version 0.2.10 fixes overlapping update notices and context-menu targets, reads directories in the background, and prepares sorted/filtered file lists and selection statistics outside view construction. Stale navigation and listing results are discarded.

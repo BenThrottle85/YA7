@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.10 — 2026-11-17
+
+- Reserve a separate area for the 7-Zip update notice so it does not overlap the file browser; stack its link below the message at narrow widths.
+- Apply context-menu actions to clicked files, including multiple files, rather than a previous selection.
+- Read directories and metadata in the background; discard stale navigation results.
+- Prepare sorted and filtered lists outside SwiftUI view construction, reuse sorting across searches, and cache selection statistics.
+- Preserve English/German localization and add regression coverage for navigation, context actions, sorting, filtering and selection summaries (33 tests passing).
+
 ## 0.2.9 — 2026-10-30
 
 - Fix Finder output handoff: stage archives and extracted folders in the system item replacement directory, as required by Apple's Action Extension example, so Finder can place the result after Done.

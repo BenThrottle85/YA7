@@ -1,6 +1,6 @@
 # YA7 - Yet Another 7-Zip GUI for macOS
 
-Version **0.2.9 (Build 11)**. Native macOS-App ab macOS 14, Universal-Build fuer Apple Silicon und Intel. Enthalten: offizielles 7-Zip 26.05 und drei Finder-Schnellaktionen. Kein Homebrew erforderlich.
+Version **0.2.10 (Build 12)**. Native macOS-App ab macOS 14, Universal-Build fuer Apple Silicon und Intel. Enthalten: offizielles 7-Zip 26.05 und drei Finder-Schnellaktionen. Kein Homebrew erforderlich.
 
 ## Sprachen
 
@@ -26,7 +26,7 @@ Tests, Vorschau-/Demo-Renderings und Finder-Erweiterungen starten keine automati
 
 ## Installation und Finder
 
-`YA7-0.2.9-macOS.dmg` oeffnen und YA7.app auf Programme ziehen. Eine vorhandene laufende YA7-App vor dem Austausch regulär schliessen. Danach aus Programme starten. Keine Testkopie aus einem Build-Ordner starten.
+[YA7-0.2.10-macOS.dmg](https://github.com/BenThrottle85/YA7/releases/download/v0.2.10/YA7-0.2.10-macOS.dmg) oeffnen und YA7.app auf Programme ziehen. Eine vorhandene laufende YA7-App vor dem Austausch regulär schliessen. Danach aus Programme starten. Keine Testkopie aus einem Build-Ordner starten.
 
 Finder: Rechtsklick -> Schnellaktionen -> Anpassen. **YA7: Packen**, **YA7: Entpacken**, **YA7: Pruefen** aktivieren. Bei Erfolg **Fertig** waehlen, damit Finder die Ausgaben uebernimmt. Die Haupt-App hat eine eigene Zielordnerauswahl. Keine automatische Installation oder oeffentliche Veroeffentlichung durch die Buildskripte.
 
@@ -36,13 +36,13 @@ Vorhandene Ausgaben werden nicht automatisch ueberschrieben. Komprimierte TAR-St
 
 Kein Bearbeiten bestehender Archive, keine Mehrteilarchive und keine beliebig rekursiven verschachtelten Archive. Verschluesselte Dateinamen werden weiterhin nicht geoeffnet. Fortschritt unbestimmt. Kein Finder-Doppelklick-Dateihandler und kein eigener Dateimanager fuer Umbenennen/Kopieren/Loeschen. Die bisherigen Bundle-Kennungen bleiben fuer Einstellungen und Finder-Identitaet erhalten.
 
-Separat bekannte Punkte: ueberlappende Archiv-Leseauftraege koennten aeltere Ergebnisse einsetzen; erfolgreiche Finder-Ausgaben bleiben fuer die Uebernahme vorlaeufig im systemseitigen Austauschverzeichnis. Beide Punkte wurden hier nicht automatisch umgebaut.
+Separat bekannter Punkt: Erfolgreiche Finder-Ausgaben bleiben fuer die Uebernahme vorlaeufig im systemseitigen Austauschverzeichnis; deren Bereinigungszyklus bleibt zu verbessern.
 
 ## Entwicklung, Tests und Auslieferung
 
 `YA7.xcodeproj` mit Schema YA7 oeffnen. `sh build-app.sh` baut alle Universal-Komponenten und exportiert die signierte App. Lokale Entwicklung bleibt mit Ad-hoc-Signierung moeglich. Das eingecheckte Xcode-Projekt benoetigt keine Drittanbieter-Generatoren; `python3 Scripts/generate-project.py` aktualisiert Quellen und Finder-Typregeln aus dem gemeinsamen Katalog. Der Generator benoetigt die installierten Xcode-Werkzeuge.
 
-23 Xcode-Funktionstests bestanden: bisherige ZIP-/7z-Pruefungen, neue TAR-Roundtrips und Auswahl, Zielkonflikte, gefaehrliche innere Pfade, Abbruch, zusaetzliche CAB/ISO/DMG/Zstandard-Fixtures und netzwerkfreie Versions-/Intervall-/Fehlertests. Testbeispiele sind im Quellprojekt enthalten. Zusaetzlich eine echte Versionsabfrage gegen das offizielle Projekt erfolgreich.
+33 Xcode-Funktionstests bestanden: bisherige ZIP-/7z-Pruefungen, neue TAR-Roundtrips und Auswahl, Zielkonflikte, gefaehrliche innere Pfade, Abbruch, zusaetzliche CAB/ISO/DMG/Zstandard-Fixtures und netzwerkfreie Versions-/Intervall-/Fehlertests. Testbeispiele sind im Quellprojekt enthalten. Zusaetzlich eine echte Versionsabfrage gegen das offizielle Projekt erfolgreich.
 
 Einstellungen hell/dunkel sowie die Finder-Konfigurationsansicht mit TAR.XZ visuell geprueft. Die separate native Finder-Ansichtsprobe ist kein Finder-Screenshot. Ein erneuter Live-Test ueber das echte Finder-Rechtsklick-Menue war mit den verfuegbaren Werkzeugen nicht moeglich. Intel und macOS 14 wurden kompiliert, nicht auf separaten Systemen ausgefuehrt. Frischer Download-/Installationstest auf einem zweiten Mac bleibt offen.
 
@@ -57,3 +57,5 @@ YA7 -> **Lizenzen und Quellcode ...** oeffnet die vollstaendigen LGPL-/Herstelle
 ![YA7-Einstellungen auf Deutsch](images/settings-de-light.png)
 
 Finder-Praxistest mit 0.2.9 erfolgreich: Nach Erstellen → Fertig erschien das 7z-Archiv neben der Originaldatei. Archivintegrität und identischer Inhalt wurden geprüft; die Finder-Klicks führte der Benutzer aus.
+
+0.2.10 korrigiert die Update-Leiste und die Ziele der Rechtsklick-Aktionen. Ordner werden im Hintergrund eingelesen; sortierte/gefilterte Dateilisten und Auswahlstatistiken werden vorab berechnet. Veraltete Lade- und Suchergebnisse werden verworfen.
